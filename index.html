@@ -44,10 +44,9 @@
                     <h1 class="text-2xl md:text-3xl font-bold">Kilo Takip</h1>
                 </div>
                 <div class="flex items-center space-x-2">
-                    <span class="text-sm bg-white/20 px-3 py-1 rounded-full">
-                        <i class="fas fa-user mr-1"></i>
-                        <span id="userDisplay">Misafir</span>
-                    </span>
+                    <button id="userSettingsBtn" class="bg-white/20 hover:bg-white/30 px-3 py-1 rounded-full transition-all">
+                        <i class="fas fa-cog"></i>
+                    </button>
                     <button id="menuToggle" class="md:hidden text-white">
                         <i class="fas fa-bars text-2xl"></i>
                     </button>
@@ -55,6 +54,68 @@
             </div>
         </div>
     </header>
+
+    <!-- Mobile Navigation -->
+    <div id="mobileNav" class="md:hidden bg-white rounded-xl shadow-soft mx-4 mt-4 p-2 hidden">
+        <div class="grid grid-cols-4 gap-1">
+            <button onclick="openTab(event, 'weightTab')" class="tab-btn mobile-tab-btn flex flex-col items-center justify-center p-3 rounded-lg text-gray-500 hover:text-primary hover:bg-primary/5 transition-all">
+                <i class="fas fa-plus-circle text-xl mb-1"></i>
+                <span class="text-xs">Ekle</span>
+            </button>
+            <button onclick="openTab(event, 'historyTab')" class="tab-btn mobile-tab-btn flex flex-col items-center justify-center p-3 rounded-lg text-gray-500 hover:text-primary hover:bg-primary/5 transition-all">
+                <i class="fas fa-history text-xl mb-1"></i>
+                <span class="text-xs">Geçmiş</span>
+            </button>
+            <button onclick="openTab(event, 'targetsTab')" class="tab-btn mobile-tab-btn flex flex-col items-center justify-center p-3 rounded-lg text-gray-500 hover:text-primary hover:bg-primary/5 transition-all">
+                <i class="fas fa-bullseye text-xl mb-1"></i>
+                <span class="text-xs">Hedefler</span>
+            </button>
+            <button onclick="openTab(event, 'chartTab')" class="tab-btn mobile-tab-btn flex flex-col items-center justify-center p-3 rounded-lg text-gray-500 hover:text-primary hover:bg-primary/5 transition-all">
+                <i class="fas fa-chart-line text-xl mb-1"></i>
+                <span class="text-xs">Grafik</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- User Settings Modal -->
+    <div id="userSettingsModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-xl shadow-medium w-full max-w-md mx-4 p-6 transform transition-all">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-xl font-bold text-dark">Kullanıcı Ayarları</h2>
+                <button id="closeSettingsModal" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            
+            <div class="mb-6">
+                <h3 class="text-lg font-semibold text-dark mb-2">Kullanıcı Bilgileri</h3>
+                <div class="bg-gray-50 rounded-lg p-4">
+                    <p class="text-sm text-gray-600 mb-1">Kullanıcı ID</p>
+                    <p id="userDisplay" class="font-mono text-sm text-dark break-all"></p>
+                </div>
+            </div>
+            
+            <div class="mb-6">
+                <h3 class="text-lg font-semibold text-dark mb-3">Veri Yönetimi</h3>
+                <p class="text-gray-600 text-sm mb-4">Verileriniz tarayıcınızda saklanır. Farklı cihazlarda kullanmak için verilerinizi dışa aktarabilirsiniz.</p>
+                <div class="flex flex-col sm:flex-row gap-3">
+                    <button id="exportData" class="flex-1 bg-primary text-white px-4 py-2 rounded-lg hover:bg-secondary transition-all">
+                        <i class="fas fa-download mr-2"></i> Dışa Aktar
+                    </button>
+                    <button id="importData" class="flex-1 bg-secondary text-white px-4 py-2 rounded-lg hover:bg-primary transition-all">
+                        <i class="fas fa-upload mr-2"></i> İçe Aktar
+                    </button>
+                </div>
+                <input type="file" id="importFile" accept=".json" style="display: none;">
+            </div>
+            
+            <div class="border-t pt-4">
+                <button id="clearAllData" class="w-full bg-danger text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-all">
+                    <i class="fas fa-trash-alt mr-2"></i> Tüm Verileri Sil
+                </button>
+            </div>
+        </div>
+    </div>
 
     <!-- Main Content -->
     <main class="container mx-auto px-4 py-6">
@@ -109,26 +170,7 @@
             </div>
         </div>
 
-        <!-- User Info Panel -->
-        <div class="bg-white rounded-xl shadow-soft p-6 mb-6">
-            <div class="flex flex-col md:flex-row md:items-center md:justify-between">
-                <div>
-                    <h2 class="text-lg font-semibold text-dark mb-2">Kullanıcı Bilgileri</h2>
-                    <p class="text-gray-600 text-sm">Verileriniz tarayıcınızda saklanır. Farklı cihazlarda kullanmak için aynı tarayıcıyı kullanın.</p>
-                </div>
-                <div class="mt-4 md:mt-0">
-                    <button id="exportData" class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-secondary transition-all mr-2">
-                        <i class="fas fa-download mr-2"></i> Verileri Dışa Aktar
-                    </button>
-                    <button id="importData" class="bg-secondary text-white px-4 py-2 rounded-lg hover:bg-primary transition-all">
-                        <i class="fas fa-upload mr-2"></i> Verileri İçe Aktar
-                    </button>
-                    <input type="file" id="importFile" accept=".json" style="display: none;">
-                </div>
-            </div>
-        </div>
-
-        <!-- Tabs -->
+        <!-- Desktop Tabs -->
         <div class="hidden md:flex bg-white rounded-xl shadow-soft p-1 mb-6">
             <button onclick="openTab(event, 'weightTab')" class="tab-btn flex-1 py-3 px-6 rounded-lg text-center font-medium text-gray-500 hover:text-primary transition-all">
                 <i class="fas fa-plus-circle mr-2"></i> Kilo Girişi
@@ -359,6 +401,29 @@
                 document.getElementById('importFile').click();
             });
             document.getElementById('importFile').addEventListener('change', importData);
+            document.getElementById('clearAllData').addEventListener('click', clearAllData);
+            
+            // Mobile menu toggle
+            document.getElementById('menuToggle').addEventListener('click', () => {
+                const mobileNav = document.getElementById('mobileNav');
+                mobileNav.classList.toggle('hidden');
+            });
+            
+            // User settings modal
+            document.getElementById('userSettingsBtn').addEventListener('click', () => {
+                document.getElementById('userSettingsModal').classList.remove('hidden');
+            });
+            
+            document.getElementById('closeSettingsModal').addEventListener('click', () => {
+                document.getElementById('userSettingsModal').classList.add('hidden');
+            });
+            
+            // Modal dışına tıklayınca kapat
+            document.getElementById('userSettingsModal').addEventListener('click', (e) => {
+                if (e.target.id === 'userSettingsModal') {
+                    document.getElementById('userSettingsModal').classList.add('hidden');
+                }
+            });
             
             // Event delegation for delete buttons
             document.addEventListener('click', function(e) {
@@ -374,6 +439,23 @@
             // Set active tab
             document.querySelector('.tab-btn').classList.add('bg-primary/10', 'text-primary');
         });
+
+        // Tüm verileri sil
+        function clearAllData() {
+            if (confirm('Tüm verilerinizi silmek istediğinizden emin misiniz? Bu işlem geri alınamaz!')) {
+                const userId = getUserId();
+                localStorage.removeItem(`weights_${userId}`);
+                localStorage.removeItem(`targets_${userId}`);
+                
+                updateStats();
+                renderHistory();
+                renderTargets();
+                updateChart();
+                
+                showToast('Tüm veriler silindi!', 'info');
+                document.getElementById('userSettingsModal').classList.add('hidden');
+            }
+        }
 
         // Verileri dışa aktar
         function exportData() {
