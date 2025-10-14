@@ -66,6 +66,90 @@
             transform: scale(1.1);
             color: #4f46e5;
         }
+        /* Chain Visualization Styles */
+        .chain-day {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+        }
+        .chain-day:hover {
+            transform: scale(1.1);
+        }
+        .chain-day.completed {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.3);
+        }
+        .chain-day.missed {
+            background: #fecaca;
+            color: #dc2626;
+        }
+        .chain-day.today {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: white;
+            animation: pulse 2s infinite;
+        }
+        .chain-day.future {
+            background: #f3f4f6;
+            color: #9ca3af;
+        }
+        .chain-day.streak-fire::after {
+            content: '🔥';
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            font-size: 14px;
+        }
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.7); }
+            50% { box-shadow: 0 0 0 6px rgba(245, 158, 11, 0); }
+        }
+        .goal-card {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+            transition: all 0.3s;
+        }
+        .goal-card:hover {
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+        }
+        .streak-badge {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            animation: slideIn 0.5s ease-out;
+        }
+        @keyframes slideIn {
+            from { transform: translateX(-20px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        .motivation-message {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 16px 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            animation: fadeIn 0.5s ease-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
     </style>
 </head>
 <body class="bg-gray-50 min-h-screen">
@@ -86,6 +170,9 @@
                     <button id="measurementsSectionBtn" class="section-nav-btn hover:bg-white/20 px-4 py-2 rounded-lg transition-all text-sm font-medium">
                         <i class="fas fa-ruler mr-2"></i>Ölçüler
                     </button>
+                    <button id="goalsSectionBtn" class="section-nav-btn hover:bg-white/20 px-4 py-2 rounded-lg transition-all text-sm font-medium">
+                        <i class="fas fa-link mr-2"></i>Hedefler
+                    </button>
                 </nav>
                 <div class="flex items-center space-x-2">
                     <button id="userSettingsBtn" class="bg-white/20 hover:bg-white/30 px-3 py-1 rounded-full transition-all">
@@ -98,12 +185,18 @@
 
     <!-- Mobile Section Navigation -->
     <div id="mobileSectionNav" class="md:hidden bg-white rounded-xl shadow-soft mx-4 mt-4 p-2">
-        <div class="grid grid-cols-2 gap-2">
+        <div class="grid grid-cols-3 gap-2">
             <button id="mobileWeightSectionBtn" class="mobile-section-nav-btn bg-primary/10 text-primary flex items-center justify-center p-3 rounded-lg font-medium transition-all">
-                <i class="fas fa-weight mr-2"></i>Kilo Takibi
+                <i class="fas fa-weight mr-2"></i>
+                <span class="text-sm">Kilo</span>
             </button>
             <button id="mobileMeasurementsSectionBtn" class="mobile-section-nav-btn text-gray-500 hover:text-primary hover:bg-primary/5 flex items-center justify-center p-3 rounded-lg font-medium transition-all">
-                <i class="fas fa-ruler mr-2"></i>Vücut Ölçüleri
+                <i class="fas fa-ruler mr-2"></i>
+                <span class="text-sm">Ölçüler</span>
+            </button>
+            <button id="mobileGoalsSectionBtn" class="mobile-section-nav-btn text-gray-500 hover:text-primary hover:bg-primary/5 flex items-center justify-center p-3 rounded-lg font-medium transition-all">
+                <i class="fas fa-link mr-2"></i>
+                <span class="text-sm">Hedefler</span>
             </button>
         </div>
     </div>
@@ -647,7 +740,162 @@
         </div>
         </div>
         <!-- End Body Measurements Section -->
+
+        <!-- Goals Section (Don't Break the Chain) -->
+        <div id="goalsSection" class="section-content hidden">
+            
+            <!-- Motivation Message -->
+            <div id="motivationMessage" class="motivation-message hidden">
+                <div class="flex items-center gap-3">
+                    <i class="fas fa-fire text-2xl"></i>
+                    <div>
+                        <p class="font-bold text-lg" id="motivationTitle">Harika gidiyorsun!</p>
+                        <p class="text-sm opacity-90" id="motivationText">Zincirini kırmaya devam et! 🔥</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats Cards -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+                <div class="bg-white rounded-xl shadow-soft p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-500 text-sm mb-1">Aktif Hedefler</p>
+                            <p class="text-3xl font-bold text-primary" id="activeGoalsCount">0</p>
+                        </div>
+                        <div class="bg-primary/10 p-4 rounded-full">
+                            <i class="fas fa-bullseye text-primary text-2xl"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-xl shadow-soft p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-500 text-sm mb-1">En Uzun Seri</p>
+                            <p class="text-3xl font-bold text-warning" id="longestStreakCount">0</p>
+                        </div>
+                        <div class="bg-warning/10 p-4 rounded-full">
+                            <i class="fas fa-fire text-warning text-2xl"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-xl shadow-soft p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-500 text-sm mb-1">Toplam Tamamlanan</p>
+                            <p class="text-3xl font-bold text-success" id="totalCompletedCount">0</p>
+                        </div>
+                        <div class="bg-success/10 p-4 rounded-full">
+                            <i class="fas fa-check-circle text-success text-2xl"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Add Goal Button -->
+            <div class="mb-6">
+                <button id="addGoalBtn" class="w-full md:w-auto bg-primary text-white px-6 py-3 rounded-lg hover:bg-secondary transition-all flex items-center justify-center gap-2 shadow-soft">
+                    <i class="fas fa-plus-circle"></i>
+                    <span>Yeni Hedef Ekle</span>
+                </button>
+            </div>
+
+            <!-- Goals List -->
+            <div id="goalsContainer" class="space-y-6">
+                <!-- Goals will be rendered here -->
+            </div>
+
+            <!-- Empty State -->
+            <div id="emptyGoalsState" class="bg-white rounded-xl shadow-soft p-12 text-center hidden">
+                <i class="fas fa-link text-6xl text-gray-300 mb-4"></i>
+                <h3 class="text-xl font-bold text-gray-700 mb-2">Henüz hedef eklemediniz</h3>
+                <p class="text-gray-500 mb-6">Zinciri kırma felsefesiyle alışkanlık oluşturmaya başlayın!</p>
+                <button onclick="document.getElementById('addGoalBtn').click()" class="bg-primary text-white px-6 py-3 rounded-lg hover:bg-secondary transition-all">
+                    <i class="fas fa-plus-circle mr-2"></i>İlk Hedefini Ekle
+                </button>
+            </div>
+        </div>
+        <!-- End Goals Section -->
     </main>
+
+    <!-- Goal Modal -->
+    <div id="goalModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-start md:items-center justify-center z-50 hidden overflow-y-auto py-4">
+        <div class="bg-white rounded-xl shadow-medium w-full max-w-md mx-4 p-6 transform transition-all my-auto">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-xl font-bold text-dark">
+                    <i class="fas fa-link mr-2 text-primary"></i>
+                    <span id="goalModalTitle">Yeni Hedef Ekle</span>
+                </h2>
+                <button id="closeGoalModal" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            
+            <form id="goalForm" class="space-y-4">
+                <input type="hidden" id="goalId">
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-heading mr-1"></i> Hedef Adı *
+                    </label>
+                    <input type="text" id="goalName" required placeholder="Örn: Günlük 30 dk yürüyüş" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-align-left mr-1"></i> Açıklama
+                    </label>
+                    <textarea id="goalDescription" rows="2" placeholder="Hedef hakkında detaylar..." class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"></textarea>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-repeat mr-1"></i> Sıklık *
+                    </label>
+                    <select id="goalFrequency" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                        <option value="daily">Günlük</option>
+                        <option value="weekly">Haftalık</option>
+                        <option value="monthly">Aylık</option>
+                    </select>
+                    <p class="text-xs text-gray-500 mt-1">Hedefinizi ne sıklıkla gerçekleştirmek istiyorsunuz?</p>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-calendar-start mr-1"></i> Başlangıç *
+                        </label>
+                        <input type="date" id="goalStartDate" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-calendar-end mr-1"></i> Bitiş *
+                        </label>
+                        <input type="date" id="goalEndDate" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                    </div>
+                </div>
+                
+                <div class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded">
+                    <div class="flex items-start">
+                        <i class="fas fa-info-circle text-blue-500 mt-1 mr-2"></i>
+                        <div class="text-sm text-blue-700">
+                            <p class="font-semibold mb-1">Zinciri Kırma Felsefesi</p>
+                            <p class="text-xs">Her gün hedefinizi tamamlayarak zincirinizi uzatın. Zinciriniz ne kadar uzarsa, onu kırmamak için o kadar motive olursunuz! 🔥</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="flex gap-3 pt-4">
+                    <button type="button" id="cancelGoalBtn" class="flex-1 bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 transition-all">
+                        İptal
+                    </button>
+                    <button type="submit" class="flex-1 bg-primary text-white px-4 py-2 rounded-lg hover:bg-secondary transition-all">
+                        <i class="fas fa-save mr-2"></i> Kaydet
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
 
     <!-- Toast Notification -->
     <div id="toast" class="fixed bottom-5 right-5 bg-white rounded-xl shadow-medium p-4 flex items-center space-x-3 transform translate-x-full transition-transform duration-300 z-50">
@@ -721,6 +969,16 @@
                 const userId = getUserId();
                 const key = `measurementTargets_${userId}`;
                 localStorage.setItem(key, JSON.stringify(targets));
+            },
+            getGoals: () => {
+                const userId = getUserId();
+                const key = `goals_${userId}`;
+                return JSON.parse(localStorage.getItem(key)) || [];
+            },
+            saveGoals: (goals) => {
+                const userId = getUserId();
+                const key = `goals_${userId}`;
+                localStorage.setItem(key, JSON.stringify(goals));
             }
         };
 
@@ -819,8 +1077,10 @@
             // Section navigation
             document.getElementById('weightSectionBtn')?.addEventListener('click', () => switchSection('weight'));
             document.getElementById('measurementsSectionBtn')?.addEventListener('click', () => switchSection('measurements'));
+            document.getElementById('goalsSectionBtn')?.addEventListener('click', () => switchSection('goals'));
             document.getElementById('mobileWeightSectionBtn')?.addEventListener('click', () => switchSection('weight'));
             document.getElementById('mobileMeasurementsSectionBtn')?.addEventListener('click', () => switchSection('measurements'));
+            document.getElementById('mobileGoalsSectionBtn')?.addEventListener('click', () => switchSection('goals'));
             
             // Event delegation for delete buttons
             document.addEventListener('click', function(e) {
@@ -1517,43 +1777,50 @@
         function switchSection(section) {
             const weightSection = document.getElementById('weightSection');
             const measurementsSection = document.getElementById('measurementsSection');
+            const goalsSection = document.getElementById('goalsSection');
             const mobileNav = document.getElementById('mobileNav');
             const mobileMeasurementNav = document.getElementById('mobileMeasurementNav');
             
-            // Update section visibility
+            // Hide all sections first
+            weightSection.classList.add('hidden');
+            measurementsSection.classList.add('hidden');
+            goalsSection.classList.add('hidden');
+            mobileNav.classList.add('hidden');
+            mobileMeasurementNav.classList.add('hidden');
+            
+            // Reset all button styles
+            document.getElementById('weightSectionBtn')?.classList.remove('bg-white/20');
+            document.getElementById('measurementsSectionBtn')?.classList.remove('bg-white/20');
+            document.getElementById('goalsSectionBtn')?.classList.remove('bg-white/20');
+            
+            document.getElementById('mobileWeightSectionBtn')?.classList.remove('bg-primary/10', 'text-primary');
+            document.getElementById('mobileWeightSectionBtn')?.classList.add('text-gray-500');
+            document.getElementById('mobileMeasurementsSectionBtn')?.classList.remove('bg-primary/10', 'text-primary');
+            document.getElementById('mobileMeasurementsSectionBtn')?.classList.add('text-gray-500');
+            document.getElementById('mobileGoalsSectionBtn')?.classList.remove('bg-primary/10', 'text-primary');
+            document.getElementById('mobileGoalsSectionBtn')?.classList.add('text-gray-500');
+            
+            // Show selected section
             if (section === 'weight') {
                 weightSection.classList.remove('hidden');
-                measurementsSection.classList.add('hidden');
                 mobileNav.classList.remove('hidden');
-                mobileMeasurementNav.classList.add('hidden');
-                
-                // Update desktop buttons
                 document.getElementById('weightSectionBtn')?.classList.add('bg-white/20');
-                document.getElementById('measurementsSectionBtn')?.classList.remove('bg-white/20');
-                
-                // Update mobile buttons
                 document.getElementById('mobileWeightSectionBtn')?.classList.add('bg-primary/10', 'text-primary');
                 document.getElementById('mobileWeightSectionBtn')?.classList.remove('text-gray-500');
-                document.getElementById('mobileMeasurementsSectionBtn')?.classList.remove('bg-primary/10', 'text-primary');
-                document.getElementById('mobileMeasurementsSectionBtn')?.classList.add('text-gray-500');
-            } else {
-                weightSection.classList.add('hidden');
+            } else if (section === 'measurements') {
                 measurementsSection.classList.remove('hidden');
-                mobileNav.classList.add('hidden');
                 mobileMeasurementNav.classList.remove('hidden');
-                
-                // Update desktop buttons
-                document.getElementById('weightSectionBtn')?.classList.remove('bg-white/20');
                 document.getElementById('measurementsSectionBtn')?.classList.add('bg-white/20');
-                
-                // Update mobile buttons
-                document.getElementById('mobileWeightSectionBtn')?.classList.remove('bg-primary/10', 'text-primary');
-                document.getElementById('mobileWeightSectionBtn')?.classList.add('text-gray-500');
                 document.getElementById('mobileMeasurementsSectionBtn')?.classList.add('bg-primary/10', 'text-primary');
                 document.getElementById('mobileMeasurementsSectionBtn')?.classList.remove('text-gray-500');
-                
-                // Update chart when switching to measurements
                 updateMeasurementChart();
+            } else if (section === 'goals') {
+                goalsSection.classList.remove('hidden');
+                document.getElementById('goalsSectionBtn')?.classList.add('bg-white/20');
+                document.getElementById('mobileGoalsSectionBtn')?.classList.add('bg-primary/10', 'text-primary');
+                document.getElementById('mobileGoalsSectionBtn')?.classList.remove('text-gray-500');
+                renderGoals();
+                updateGoalsStats();
             }
         }
 
@@ -1944,6 +2211,646 @@
             measurementChart.data.datasets[2].data = hipData;
             measurementChart.data.datasets[3].data = bodyFatData;
             measurementChart.update();
+        }
+
+        // ============= GOALS SECTION (DON'T BREAK THE CHAIN) =============
+
+        // Goal modal event listeners
+        document.getElementById('addGoalBtn')?.addEventListener('click', () => {
+            openGoalModal();
+        });
+
+        document.getElementById('closeGoalModal')?.addEventListener('click', () => {
+            closeGoalModal();
+        });
+
+        document.getElementById('cancelGoalBtn')?.addEventListener('click', () => {
+            closeGoalModal();
+        });
+
+        document.getElementById('goalForm')?.addEventListener('submit', (e) => {
+            e.preventDefault();
+            saveGoal();
+        });
+
+        // Open goal modal
+        function openGoalModal(goalId = null) {
+            const modal = document.getElementById('goalModal');
+            const form = document.getElementById('goalForm');
+            const title = document.getElementById('goalModalTitle');
+            
+            form.reset();
+            
+            if (goalId) {
+                const goals = storage.getGoals();
+                const goal = goals.find(g => g.id === goalId);
+                
+                if (goal) {
+                    document.getElementById('goalId').value = goal.id;
+                    document.getElementById('goalName').value = goal.name;
+                    document.getElementById('goalDescription').value = goal.description || '';
+                    document.getElementById('goalFrequency').value = goal.frequency;
+                    document.getElementById('goalStartDate').value = goal.startDate;
+                    document.getElementById('goalEndDate').value = goal.endDate;
+                    title.textContent = 'Hedef Düzenle';
+                }
+            } else {
+                document.getElementById('goalId').value = '';
+                title.textContent = 'Yeni Hedef Ekle';
+                
+                // Set default start date to today
+                const today = new Date().toISOString().split('T')[0];
+                document.getElementById('goalStartDate').value = today;
+                
+                // Set default end date to 30 days from now
+                const endDate = new Date();
+                endDate.setDate(endDate.getDate() + 30);
+                document.getElementById('goalEndDate').value = endDate.toISOString().split('T')[0];
+            }
+            
+            modal.classList.remove('hidden');
+        }
+
+        // Close goal modal
+        function closeGoalModal() {
+            document.getElementById('goalModal').classList.add('hidden');
+        }
+
+        // Save goal
+        function saveGoal() {
+            const goalId = document.getElementById('goalId').value;
+            const name = document.getElementById('goalName').value.trim();
+            const description = document.getElementById('goalDescription').value.trim();
+            const frequency = document.getElementById('goalFrequency').value;
+            const startDate = document.getElementById('goalStartDate').value;
+            const endDate = document.getElementById('goalEndDate').value;
+            
+            if (!name || !frequency || !startDate || !endDate) {
+                showToast('Lütfen tüm zorunlu alanları doldurun!', 'error');
+                return;
+            }
+            
+            if (new Date(endDate) < new Date(startDate)) {
+                showToast('Bitiş tarihi başlangıç tarihinden önce olamaz!', 'error');
+                return;
+            }
+            
+            const goals = storage.getGoals();
+            
+            if (goalId) {
+                // Update existing goal
+                const index = goals.findIndex(g => g.id === parseInt(goalId));
+                if (index !== -1) {
+                    goals[index] = {
+                        ...goals[index],
+                        name,
+                        description,
+                        frequency,
+                        startDate,
+                        endDate,
+                        updatedAt: new Date().toISOString()
+                    };
+                    showToast('Hedef güncellendi!', 'success');
+                }
+            } else {
+                // Create new goal
+                const newGoal = {
+                    id: Date.now(),
+                    name,
+                    description,
+                    frequency,
+                    startDate,
+                    endDate,
+                    completions: [], // Array of completion dates
+                    createdAt: new Date().toISOString(),
+                    updatedAt: new Date().toISOString()
+                };
+                goals.push(newGoal);
+                showToast('Yeni hedef eklendi! 🎯', 'success');
+            }
+            
+            storage.saveGoals(goals);
+            closeGoalModal();
+            renderGoals();
+            updateGoalsStats();
+        }
+
+        // Delete goal
+        function deleteGoal(goalId) {
+            if (!confirm('Bu hedefi silmek istediğinizden emin misiniz?')) {
+                return;
+            }
+            
+            let goals = storage.getGoals();
+            goals = goals.filter(g => g.id !== goalId);
+            storage.saveGoals(goals);
+            
+            renderGoals();
+            updateGoalsStats();
+            showToast('Hedef silindi!', 'info');
+        }
+
+        // Toggle completion for a day
+        function toggleGoalCompletion(goalId, dateStr) {
+            const goals = storage.getGoals();
+            const goal = goals.find(g => g.id === goalId);
+            
+            if (!goal) return;
+            
+            const today = new Date().toISOString().split('T')[0];
+            const clickedDate = new Date(dateStr);
+            const todayDate = new Date(today);
+            
+            // Don't allow marking future dates
+            if (clickedDate > todayDate) {
+                showToast('Gelecekteki günleri işaretleyemezsiniz!', 'warning');
+                return;
+            }
+            
+            const completionIndex = goal.completions.indexOf(dateStr);
+            
+            if (completionIndex > -1) {
+                // Remove completion
+                goal.completions.splice(completionIndex, 1);
+                showToast('Tamamlanma işareti kaldırıldı', 'info');
+            } else {
+                // Add completion
+                goal.completions.push(dateStr);
+                goal.completions.sort();
+                
+                // Check if this creates/extends a streak
+                const currentStreak = getCurrentStreak(goal);
+                if (currentStreak >= 3) {
+                    showToast(`Harika! ${currentStreak} günlük serin var! 🔥`, 'success');
+                } else {
+                    showToast('Tamamlandı olarak işaretlendi! ✓', 'success');
+                }
+            }
+            
+            goal.updatedAt = new Date().toISOString();
+            storage.saveGoals(goals);
+            renderGoals();
+            updateGoalsStats();
+        }
+
+        // Get current streak for a goal
+        function getCurrentStreak(goal) {
+            if (!goal.completions || goal.completions.length === 0) {
+                return 0;
+            }
+            
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            let currentDate = new Date(today);
+            let streak = 0;
+            
+            const sortedCompletions = [...goal.completions].sort().reverse();
+            const completionDates = sortedCompletions.map(d => new Date(d).getTime());
+            
+            // Check based on frequency
+            if (goal.frequency === 'daily') {
+                while (true) {
+                    const dateStr = currentDate.toISOString().split('T')[0];
+                    if (goal.completions.includes(dateStr)) {
+                        streak++;
+                        currentDate.setDate(currentDate.getDate() - 1);
+                    } else {
+                        // For daily goals, allow missing today if streak starts yesterday
+                        if (streak === 0 && currentDate.getTime() === today.getTime()) {
+                            currentDate.setDate(currentDate.getDate() - 1);
+                            continue;
+                        }
+                        break;
+                    }
+                    
+                    // Don't count days before goal start
+                    if (currentDate < new Date(goal.startDate)) {
+                        break;
+                    }
+                }
+            } else if (goal.frequency === 'weekly') {
+                // For weekly goals, count consecutive weeks with at least one completion
+                let weekStart = new Date(today);
+                weekStart.setDate(today.getDate() - today.getDay()); // Start of current week
+                
+                while (true) {
+                    const weekEnd = new Date(weekStart);
+                    weekEnd.setDate(weekStart.getDate() + 6);
+                    
+                    const hasCompletionInWeek = goal.completions.some(dateStr => {
+                        const compDate = new Date(dateStr);
+                        return compDate >= weekStart && compDate <= weekEnd;
+                    });
+                    
+                    if (hasCompletionInWeek) {
+                        streak++;
+                        weekStart.setDate(weekStart.getDate() - 7);
+                    } else {
+                        break;
+                    }
+                    
+                    if (weekStart < new Date(goal.startDate)) {
+                        break;
+                    }
+                }
+            } else if (goal.frequency === 'monthly') {
+                // For monthly goals, count consecutive months with at least one completion
+                let monthDate = new Date(today.getFullYear(), today.getMonth(), 1);
+                
+                while (true) {
+                    const monthStart = new Date(monthDate);
+                    const monthEnd = new Date(monthDate.getFullYear(), monthDate.getMonth() + 1, 0);
+                    
+                    const hasCompletionInMonth = goal.completions.some(dateStr => {
+                        const compDate = new Date(dateStr);
+                        return compDate >= monthStart && compDate <= monthEnd;
+                    });
+                    
+                    if (hasCompletionInMonth) {
+                        streak++;
+                        monthDate.setMonth(monthDate.getMonth() - 1);
+                    } else {
+                        break;
+                    }
+                    
+                    if (monthDate < new Date(goal.startDate)) {
+                        break;
+                    }
+                }
+            }
+            
+            return streak;
+        }
+
+        // Get longest streak for a goal
+        function getLongestStreak(goal) {
+            if (!goal.completions || goal.completions.length === 0) {
+                return 0;
+            }
+            
+            let maxStreak = 0;
+            let currentStreak = 0;
+            const sortedCompletions = [...goal.completions].sort();
+            
+            if (goal.frequency === 'daily') {
+                for (let i = 0; i < sortedCompletions.length; i++) {
+                    if (i === 0) {
+                        currentStreak = 1;
+                    } else {
+                        const prevDate = new Date(sortedCompletions[i - 1]);
+                        const currDate = new Date(sortedCompletions[i]);
+                        const diffDays = Math.floor((currDate - prevDate) / (1000 * 60 * 60 * 24));
+                        
+                        if (diffDays === 1) {
+                            currentStreak++;
+                        } else {
+                            maxStreak = Math.max(maxStreak, currentStreak);
+                            currentStreak = 1;
+                        }
+                    }
+                }
+                maxStreak = Math.max(maxStreak, currentStreak);
+            } else {
+                // For weekly/monthly, just count total completions as streak indicator
+                maxStreak = sortedCompletions.length;
+            }
+            
+            return maxStreak;
+        }
+
+        // Render goals
+        function renderGoals() {
+            const goals = storage.getGoals();
+            const container = document.getElementById('goalsContainer');
+            const emptyState = document.getElementById('emptyGoalsState');
+            
+            container.innerHTML = '';
+            
+            if (goals.length === 0) {
+                emptyState.classList.remove('hidden');
+                return;
+            }
+            
+            emptyState.classList.add('hidden');
+            
+            // Sort goals: active first, then by creation date
+            const sortedGoals = goals.sort((a, b) => {
+                const aActive = isGoalActive(a);
+                const bActive = isGoalActive(b);
+                
+                if (aActive && !bActive) return -1;
+                if (!aActive && bActive) return 1;
+                
+                return new Date(b.createdAt) - new Date(a.createdAt);
+            });
+            
+            sortedGoals.forEach(goal => {
+                const goalCard = createGoalCard(goal);
+                container.appendChild(goalCard);
+            });
+            
+            // Update motivation message
+            updateMotivationMessage();
+        }
+
+        // Check if goal is active
+        function isGoalActive(goal) {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const start = new Date(goal.startDate);
+            const end = new Date(goal.endDate);
+            
+            return today >= start && today <= end;
+        }
+
+        // Create goal card
+        function createGoalCard(goal) {
+            const card = document.createElement('div');
+            card.className = 'goal-card';
+            
+            const currentStreak = getCurrentStreak(goal);
+            const longestStreak = getLongestStreak(goal);
+            const isActive = isGoalActive(goal);
+            const completionRate = calculateCompletionRate(goal);
+            
+            const frequencyText = {
+                'daily': 'Günlük',
+                'weekly': 'Haftalık',
+                'monthly': 'Aylık'
+            };
+            
+            const statusBadge = isActive 
+                ? '<span class="bg-green-100 text-green-800 text-xs px-3 py-1 rounded-full font-medium">Aktif</span>'
+                : '<span class="bg-gray-100 text-gray-600 text-xs px-3 py-1 rounded-full font-medium">Tamamlandı</span>';
+            
+            card.innerHTML = `
+                <div class="flex justify-between items-start mb-4">
+                    <div class="flex-1">
+                        <h3 class="text-lg font-bold text-gray-800 mb-1">${escapeHtml(goal.name)}</h3>
+                        ${goal.description ? `<p class="text-sm text-gray-600 mb-2">${escapeHtml(goal.description)}</p>` : ''}
+                        <div class="flex flex-wrap gap-2 items-center">
+                            ${statusBadge}
+                            <span class="text-xs text-gray-500">
+                                <i class="fas fa-repeat mr-1"></i>${frequencyText[goal.frequency]}
+                            </span>
+                            <span class="text-xs text-gray-500">
+                                <i class="fas fa-calendar mr-1"></i>${formatDate(goal.startDate)} - ${formatDate(goal.endDate)}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="flex gap-2 ml-4">
+                        <button onclick="openGoalModal(${goal.id})" class="text-primary hover:text-secondary transition-all p-2">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button onclick="deleteGoal(${goal.id})" class="text-danger hover:text-red-600 transition-all p-2">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Streak Stats -->
+                <div class="grid grid-cols-3 gap-3 mb-4 p-3 bg-gray-50 rounded-lg">
+                    <div class="text-center">
+                        <p class="text-2xl font-bold text-warning">${currentStreak}</p>
+                        <p class="text-xs text-gray-600">Mevcut Seri</p>
+                    </div>
+                    <div class="text-center">
+                        <p class="text-2xl font-bold text-primary">${longestStreak}</p>
+                        <p class="text-xs text-gray-600">En Uzun Seri</p>
+                    </div>
+                    <div class="text-center">
+                        <p class="text-2xl font-bold text-success">${completionRate}%</p>
+                        <p class="text-xs text-gray-600">Başarı Oranı</p>
+                    </div>
+                </div>
+                
+                <!-- Chain Visualization -->
+                <div class="mb-3">
+                    <h4 class="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                        <i class="fas fa-link"></i>
+                        Zincir Görünümü
+                        ${currentStreak >= 3 ? '<span class="text-lg">🔥</span>' : ''}
+                    </h4>
+                    <div id="chain-${goal.id}" class="grid grid-cols-7 gap-2 mb-2">
+                        <!-- Chain days will be rendered here -->
+                    </div>
+                    <div class="flex justify-between items-center text-xs text-gray-500 mt-2">
+                        <div class="flex gap-3">
+                            <span><span class="inline-block w-3 h-3 bg-success rounded mr-1"></span>Tamamlandı</span>
+                            <span><span class="inline-block w-3 h-3 bg-danger/30 rounded mr-1"></span>Atlandı</span>
+                            <span><span class="inline-block w-3 h-3 bg-warning rounded mr-1"></span>Bugün</span>
+                        </div>
+                        <button onclick="toggleChainView(${goal.id})" class="text-primary hover:underline">
+                            <i class="fas fa-calendar-alt mr-1"></i>Tümünü Gör
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            // Render chain days
+            setTimeout(() => renderChainDays(goal), 0);
+            
+            return card;
+        }
+
+        // Render chain days for a goal
+        function renderChainDays(goal) {
+            const chainContainer = document.getElementById(`chain-${goal.id}`);
+            if (!chainContainer) return;
+            
+            chainContainer.innerHTML = '';
+            
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            // Show last 28 days (4 weeks) for better mobile view
+            const daysToShow = 28;
+            const startDisplayDate = new Date(today);
+            startDisplayDate.setDate(today.getDate() - daysToShow + 1);
+            
+            // Don't show days before goal start
+            const goalStartDate = new Date(goal.startDate);
+            if (startDisplayDate < goalStartDate) {
+                startDisplayDate.setTime(goalStartDate.getTime());
+            }
+            
+            for (let i = 0; i < daysToShow; i++) {
+                const currentDate = new Date(startDisplayDate);
+                currentDate.setDate(startDisplayDate.getDate() + i);
+                
+                if (currentDate > today) break;
+                
+                const dateStr = currentDate.toISOString().split('T')[0];
+                const dayDiv = document.createElement('div');
+                
+                const isCompleted = goal.completions.includes(dateStr);
+                const isToday = currentDate.getTime() === today.getTime();
+                const isFuture = currentDate > today;
+                const shouldBeCompleted = shouldDayBeCompleted(goal, currentDate);
+                const isMissed = !isCompleted && shouldBeCompleted && currentDate < today;
+                
+                let className = 'chain-day ';
+                if (isFuture) {
+                    className += 'future';
+                } else if (isToday) {
+                    className += 'today';
+                } else if (isCompleted) {
+                    className += 'completed';
+                    // Add fire emoji for streak days
+                    if (getCurrentStreak(goal) >= 3) {
+                        className += ' streak-fire';
+                    }
+                } else if (isMissed) {
+                    className += 'missed';
+                } else {
+                    className += 'future';
+                }
+                
+                dayDiv.className = className;
+                dayDiv.textContent = currentDate.getDate();
+                dayDiv.onclick = () => toggleGoalCompletion(goal.id, dateStr);
+                dayDiv.title = `${formatDate(dateStr)} - ${isCompleted ? 'Tamamlandı' : 'Henüz tamamlanmadı'}`;
+                
+                chainContainer.appendChild(dayDiv);
+            }
+        }
+
+        // Check if a day should be completed based on frequency
+        function shouldDayBeCompleted(goal, date) {
+            const goalStart = new Date(goal.startDate);
+            goalStart.setHours(0, 0, 0, 0);
+            
+            if (date < goalStart) return false;
+            
+            // For daily goals, every day should be completed
+            if (goal.frequency === 'daily') {
+                return true;
+            }
+            
+            // For weekly/monthly, we don't mark specific days as "should be completed"
+            // User can complete on any day within the period
+            return false;
+        }
+
+        // Calculate completion rate
+        function calculateCompletionRate(goal) {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            const startDate = new Date(goal.startDate);
+            startDate.setHours(0, 0, 0, 0);
+            
+            const endDate = new Date(goal.endDate);
+            endDate.setHours(0, 0, 0, 0);
+            
+            const relevantEndDate = today < endDate ? today : endDate;
+            
+            if (relevantEndDate < startDate) return 0;
+            
+            let expectedCompletions = 0;
+            let actualCompletions = goal.completions.filter(dateStr => {
+                const compDate = new Date(dateStr);
+                return compDate >= startDate && compDate <= relevantEndDate;
+            }).length;
+            
+            if (goal.frequency === 'daily') {
+                const daysPassed = Math.floor((relevantEndDate - startDate) / (1000 * 60 * 60 * 24)) + 1;
+                expectedCompletions = daysPassed;
+            } else if (goal.frequency === 'weekly') {
+                const weeksPassed = Math.ceil((relevantEndDate - startDate) / (1000 * 60 * 60 * 24 * 7));
+                expectedCompletions = weeksPassed;
+            } else if (goal.frequency === 'monthly') {
+                const monthsPassed = (relevantEndDate.getFullYear() - startDate.getFullYear()) * 12 
+                    + (relevantEndDate.getMonth() - startDate.getMonth()) + 1;
+                expectedCompletions = monthsPassed;
+            }
+            
+            if (expectedCompletions === 0) return 0;
+            
+            return Math.min(100, Math.round((actualCompletions / expectedCompletions) * 100));
+        }
+
+        // Update goals stats
+        function updateGoalsStats() {
+            const goals = storage.getGoals();
+            
+            const activeGoals = goals.filter(g => isGoalActive(g));
+            const longestStreak = Math.max(0, ...goals.map(g => getLongestStreak(g)));
+            const totalCompleted = goals.reduce((sum, g) => sum + (g.completions ? g.completions.length : 0), 0);
+            
+            document.getElementById('activeGoalsCount').textContent = activeGoals.length;
+            document.getElementById('longestStreakCount').textContent = longestStreak;
+            document.getElementById('totalCompletedCount').textContent = totalCompleted;
+        }
+
+        // Update motivation message
+        function updateMotivationMessage() {
+            const goals = storage.getGoals();
+            const motivationDiv = document.getElementById('motivationMessage');
+            const titleEl = document.getElementById('motivationTitle');
+            const textEl = document.getElementById('motivationText');
+            
+            if (goals.length === 0) {
+                motivationDiv.classList.add('hidden');
+                return;
+            }
+            
+            const activeGoals = goals.filter(g => isGoalActive(g));
+            
+            if (activeGoals.length === 0) {
+                motivationDiv.classList.add('hidden');
+                return;
+            }
+            
+            // Find best streak
+            const bestStreak = Math.max(...activeGoals.map(g => getCurrentStreak(g)));
+            
+            // Check if any goal needs completion today
+            const today = new Date().toISOString().split('T')[0];
+            const needsCompletionToday = activeGoals.some(g => 
+                g.frequency === 'daily' && !g.completions.includes(today)
+            );
+            
+            let title = '';
+            let text = '';
+            
+            if (bestStreak >= 21) {
+                title = 'İnanılmaz! 🌟';
+                text = `${bestStreak} günlük serinle efsane oluyorsun! Vazgeçme!`;
+            } else if (bestStreak >= 14) {
+                title = 'Mükemmel gidiyorsun! 🎯';
+                text = `${bestStreak} günlük serin var! İki haftayı geçtin!`;
+            } else if (bestStreak >= 7) {
+                title = 'Harika! Bir hafta geride kaldı! ✨';
+                text = `${bestStreak} günlük serin var. Devam et!`;
+            } else if (bestStreak >= 3) {
+                title = 'Güzel başlangıç! 🔥';
+                text = `${bestStreak} günlük serin var. Zinciri kırmayalım!`;
+            } else if (needsCompletionToday) {
+                title = 'Bugünkü hedeflerini tamamladın mı? ⏰';
+                text = 'Zincirini kırmamak için bugünkü görevlerini yapmayı unutma!';
+            } else {
+                title = 'Başlayalım! 💪';
+                text = 'Her gün biraz daha ilerle, alışkanlık oluştur!';
+            }
+            
+            titleEl.textContent = title;
+            textEl.textContent = text;
+            motivationDiv.classList.remove('hidden');
+        }
+
+        // Toggle expanded chain view (future enhancement - could show full calendar)
+        function toggleChainView(goalId) {
+            // This could open a modal with full calendar view
+            // For now, just show a toast
+            showToast('Tam takvim görünümü yakında eklenecek!', 'info');
+        }
+
+        // Escape HTML to prevent XSS
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
         }
     </script>
 </body>
