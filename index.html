@@ -72,7 +72,7 @@
         </div>
     </div>
 
-    <!-- Mobile Navigation -->
+    <!-- Mobile Navigation for Weight -->
     <div id="mobileNav" class="md:hidden bg-white rounded-xl shadow-soft mx-4 mt-4 p-2">
         <div class="grid grid-cols-4 gap-1">
             <button onclick="openTab(event, 'weightTab')" class="tab-btn mobile-tab-btn flex flex-col items-center justify-center p-3 rounded-lg text-gray-500 hover:text-primary hover:bg-primary/5 transition-all">
@@ -94,9 +94,27 @@
         </div>
     </div>
 
+    <!-- Mobile Navigation for Measurements -->
+    <div id="mobileMeasurementNav" class="md:hidden bg-white rounded-xl shadow-soft mx-4 mt-4 p-2 hidden">
+        <div class="grid grid-cols-3 gap-1">
+            <button onclick="openMeasurementTab(event, 'measurementEntryTab')" class="measurement-tab-btn mobile-measurement-tab-btn flex flex-col items-center justify-center p-3 rounded-lg text-gray-500 hover:text-primary hover:bg-primary/5 transition-all">
+                <i class="fas fa-plus-circle text-xl mb-1"></i>
+                <span class="text-xs">Ekle</span>
+            </button>
+            <button onclick="openMeasurementTab(event, 'measurementHistoryTab')" class="measurement-tab-btn mobile-measurement-tab-btn flex flex-col items-center justify-center p-3 rounded-lg text-gray-500 hover:text-primary hover:bg-primary/5 transition-all">
+                <i class="fas fa-history text-xl mb-1"></i>
+                <span class="text-xs">Geçmiş</span>
+            </button>
+            <button onclick="openMeasurementTab(event, 'measurementChartTab')" class="measurement-tab-btn mobile-measurement-tab-btn flex flex-col items-center justify-center p-3 rounded-lg text-gray-500 hover:text-primary hover:bg-primary/5 transition-all">
+                <i class="fas fa-chart-line text-xl mb-1"></i>
+                <span class="text-xs">Grafik</span>
+            </button>
+        </div>
+    </div>
+
     <!-- User Settings Modal -->
-    <div id="userSettingsModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
-        <div class="bg-white rounded-xl shadow-medium w-full max-w-md mx-4 p-6 transform transition-all">
+    <div id="userSettingsModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-start md:items-center justify-center z-50 hidden overflow-y-auto py-4">
+        <div class="bg-white rounded-xl shadow-medium w-full max-w-md mx-4 p-6 transform transition-all my-auto">
             <div class="flex justify-between items-center mb-6">
                 <h2 class="text-xl font-bold text-dark">Kullanıcı Ayarları</h2>
                 <button id="closeSettingsModal" class="text-gray-500 hover:text-gray-700">
@@ -425,24 +443,6 @@
             <button onclick="openMeasurementTab(event, 'measurementChartTab')" class="measurement-tab-btn flex-1 py-3 px-6 rounded-lg text-center font-medium text-gray-500 hover:text-primary transition-all">
                 <i class="fas fa-chart-line mr-2"></i> Grafikler
             </button>
-        </div>
-
-        <!-- Mobile Navigation for Measurements -->
-        <div id="mobileMeasurementNav" class="md:hidden bg-white rounded-xl shadow-soft p-2 mb-6 hidden">
-            <div class="grid grid-cols-3 gap-1">
-                <button onclick="openMeasurementTab(event, 'measurementEntryTab')" class="measurement-tab-btn mobile-measurement-tab-btn flex flex-col items-center justify-center p-3 rounded-lg text-gray-500 hover:text-primary hover:bg-primary/5 transition-all">
-                    <i class="fas fa-plus-circle text-xl mb-1"></i>
-                    <span class="text-xs">Ekle</span>
-                </button>
-                <button onclick="openMeasurementTab(event, 'measurementHistoryTab')" class="measurement-tab-btn mobile-measurement-tab-btn flex flex-col items-center justify-center p-3 rounded-lg text-gray-500 hover:text-primary hover:bg-primary/5 transition-all">
-                    <i class="fas fa-history text-xl mb-1"></i>
-                    <span class="text-xs">Geçmiş</span>
-                </button>
-                <button onclick="openMeasurementTab(event, 'measurementChartTab')" class="measurement-tab-btn mobile-measurement-tab-btn flex flex-col items-center justify-center p-3 rounded-lg text-gray-500 hover:text-primary hover:bg-primary/5 transition-all">
-                    <i class="fas fa-chart-line text-xl mb-1"></i>
-                    <span class="text-xs">Grafik</span>
-                </button>
-            </div>
         </div>
 
         <!-- Tab Contents -->
