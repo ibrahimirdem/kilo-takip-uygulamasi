@@ -101,6 +101,12 @@
             background: #f3f4f6;
             color: #9ca3af;
         }
+        .chain-day.today-completed {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            animation: pulse-green 2s infinite;
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.5);
+        }
         .chain-day.streak-fire::after {
             content: '🔥';
             position: absolute;
@@ -111,6 +117,10 @@
         @keyframes pulse {
             0%, 100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.7); }
             50% { box-shadow: 0 0 0 6px rgba(245, 158, 11, 0); }
+        }
+        @keyframes pulse-green {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+            50% { box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
         }
         .goal-card {
             background: white;
@@ -817,6 +827,79 @@
         </div>
         <!-- End Goals Section -->
     </main>
+
+    <!-- Full Calendar Modal -->
+    <div id="fullCalendarModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden overflow-y-auto py-4">
+        <div class="bg-white rounded-xl shadow-medium w-full max-w-4xl mx-4 p-6 transform transition-all my-auto max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-xl font-bold text-dark">
+                    <i class="fas fa-calendar-alt mr-2 text-primary"></i>
+                    <span id="calendarGoalTitle">Hedef Takvimi</span>
+                </h2>
+                <button id="closeCalendarModal" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            
+            <!-- Calendar Navigation -->
+            <div class="flex items-center justify-between mb-6">
+                <button id="prevCalendarMonth" class="bg-gray-100 hover:bg-gray-200 px-4 py-2 rounded-lg transition-all">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                <div class="text-center">
+                    <h3 id="calendarMonthYear" class="text-lg font-bold text-gray-800"></h3>
+                    <p id="calendarGoalFrequency" class="text-sm text-gray-500"></p>
+                </div>
+                <button id="nextCalendarMonth" class="bg-gray-100 hover:bg-gray-200 px-4 py-2 rounded-lg transition-all">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+            
+            <!-- Period Stats (for weekly/monthly) -->
+            <div id="periodStats" class="mb-4 p-4 bg-gradient-to-r from-primary/10 to-secondary/10 rounded-lg hidden">
+                <div class="grid grid-cols-3 gap-4 text-center">
+                    <div>
+                        <p class="text-2xl font-bold text-primary" id="periodCurrentStreak">0</p>
+                        <p class="text-xs text-gray-600">Mevcut Seri</p>
+                    </div>
+                    <div>
+                        <p class="text-2xl font-bold text-success" id="periodCompletedCount">0</p>
+                        <p class="text-xs text-gray-600">Tamamlanan</p>
+                    </div>
+                    <div>
+                        <p class="text-2xl font-bold text-warning" id="periodTotalPeriods">0</p>
+                        <p class="text-xs text-gray-600">Toplam Periyot</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Calendar Grid -->
+            <div class="mb-4">
+                <!-- Weekday Headers -->
+                <div class="grid grid-cols-7 gap-2 mb-2">
+                    <div class="text-center text-xs font-semibold text-gray-600 py-2">Pzt</div>
+                    <div class="text-center text-xs font-semibold text-gray-600 py-2">Sal</div>
+                    <div class="text-center text-xs font-semibold text-gray-600 py-2">Çar</div>
+                    <div class="text-center text-xs font-semibold text-gray-600 py-2">Per</div>
+                    <div class="text-center text-xs font-semibold text-gray-600 py-2">Cum</div>
+                    <div class="text-center text-xs font-semibold text-gray-600 py-2">Cmt</div>
+                    <div class="text-center text-xs font-semibold text-gray-600 py-2">Paz</div>
+                </div>
+                <!-- Calendar Days -->
+                <div id="calendarDaysGrid" class="grid grid-cols-7 gap-2">
+                    <!-- Days will be rendered here -->
+                </div>
+            </div>
+            
+            <!-- Legend -->
+            <div class="flex flex-wrap gap-4 text-sm justify-center p-4 bg-gray-50 rounded-lg">
+                <span><span class="inline-block w-4 h-4 bg-success rounded mr-2"></span>Tamamlandı</span>
+                <span><span class="inline-block w-4 h-4 bg-danger/30 rounded mr-2"></span>Atlandı</span>
+                <span><span class="inline-block w-4 h-4 bg-warning rounded mr-2"></span>Bugün</span>
+                <span><span class="inline-block w-4 h-4 bg-gray-200 rounded mr-2"></span>Gelecek</span>
+            </div>
+        </div>
+    </div>
 
     <!-- Goal Modal -->
     <div id="goalModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-start md:items-center justify-center z-50 hidden overflow-y-auto py-4">
@@ -2380,8 +2463,11 @@
                 
                 // Check if this creates/extends a streak
                 const currentStreak = getCurrentStreak(goal);
+                const streakUnit = goal.frequency === 'daily' ? 'günlük' : 
+                                   goal.frequency === 'weekly' ? 'haftalık' : 'aylık';
+                
                 if (currentStreak >= 3) {
-                    showToast(`Harika! ${currentStreak} günlük serin var! 🔥`, 'success');
+                    showToast(`Harika! ${currentStreak} ${streakUnit} serin var! 🔥`, 'success');
                 } else {
                     showToast('Tamamlandı olarak işaretlendi! ✓', 'success');
                 }
@@ -2391,6 +2477,12 @@
             storage.saveGoals(goals);
             renderGoals();
             updateGoalsStats();
+            
+            // Update calendar if open
+            if (currentCalendarGoal && currentCalendarGoal.id === goalId) {
+                currentCalendarGoal = goals.find(g => g.id === goalId);
+                renderFullCalendar();
+            }
         }
 
         // Get current streak for a goal
@@ -2626,22 +2718,44 @@
                 
                 <!-- Chain Visualization -->
                 <div class="mb-3">
-                    <h4 class="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                        <i class="fas fa-link"></i>
-                        Zincir Görünümü
-                        ${currentStreak >= 3 ? '<span class="text-lg">🔥</span>' : ''}
-                    </h4>
-                    <div id="chain-${goal.id}" class="grid grid-cols-7 gap-2 mb-2">
+                    <div class="flex items-center justify-between mb-2">
+                        <h4 class="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                            <i class="fas fa-link"></i>
+                            Zincir Görünümü
+                            ${currentStreak >= 3 ? '<span class="text-lg">🔥</span>' : ''}
+                        </h4>
+                        <span class="text-xs px-2 py-1 rounded-full ${
+                            goal.frequency === 'daily' ? 'bg-blue-100 text-blue-700' : 
+                            goal.frequency === 'weekly' ? 'bg-purple-100 text-purple-700' : 
+                            'bg-indigo-100 text-indigo-700'
+                        }">
+                            <i class="fas ${
+                                goal.frequency === 'daily' ? 'fa-calendar-day' : 
+                                goal.frequency === 'weekly' ? 'fa-calendar-week' : 
+                                'fa-calendar'
+                            } mr-1"></i>
+                            ${frequencyText[goal.frequency]}
+                        </span>
+                    </div>
+                    <div id="chain-${goal.id}" class="grid ${
+                        goal.frequency === 'daily' ? 'grid-cols-7' : 
+                        goal.frequency === 'weekly' ? 'grid-cols-8' : 
+                        'grid-cols-6'
+                    } gap-2 mb-2">
                         <!-- Chain days will be rendered here -->
                     </div>
                     <div class="flex justify-between items-center text-xs text-gray-500 mt-2">
                         <div class="flex gap-3">
                             <span><span class="inline-block w-3 h-3 bg-success rounded mr-1"></span>Tamamlandı</span>
                             <span><span class="inline-block w-3 h-3 bg-danger/30 rounded mr-1"></span>Atlandı</span>
-                            <span><span class="inline-block w-3 h-3 bg-warning rounded mr-1"></span>Bugün</span>
+                            <span><span class="inline-block w-3 h-3 bg-warning rounded mr-1"></span>${
+                                goal.frequency === 'daily' ? 'Bugün' : 
+                                goal.frequency === 'weekly' ? 'Bu Hafta' : 
+                                'Bu Ay'
+                            }</span>
                         </div>
-                        <button onclick="toggleChainView(${goal.id})" class="text-primary hover:underline">
-                            <i class="fas fa-calendar-alt mr-1"></i>Tümünü Gör
+                        <button onclick="toggleChainView(${goal.id})" class="text-primary hover:underline font-medium">
+                            <i class="fas fa-calendar-alt mr-1"></i>Takvimi Görüntüle
                         </button>
                     </div>
                 </div>
@@ -2663,6 +2777,18 @@
             const today = new Date();
             today.setHours(0, 0, 0, 0);
             
+            // For different frequencies, show different views
+            if (goal.frequency === 'weekly') {
+                renderWeeklyChainView(goal, chainContainer, today);
+            } else if (goal.frequency === 'monthly') {
+                renderMonthlyChainView(goal, chainContainer, today);
+            } else {
+                renderDailyChainView(goal, chainContainer, today);
+            }
+        }
+
+        // Render daily chain view
+        function renderDailyChainView(goal, container, today) {
             // Show last 28 days (4 weeks) for better mobile view
             const daysToShow = 28;
             const startDisplayDate = new Date(today);
@@ -2693,13 +2819,9 @@
                 if (isFuture) {
                     className += 'future';
                 } else if (isToday) {
-                    className += 'today';
+                    className += isCompleted ? 'completed today-completed' : 'today';
                 } else if (isCompleted) {
                     className += 'completed';
-                    // Add fire emoji for streak days
-                    if (getCurrentStreak(goal) >= 3) {
-                        className += ' streak-fire';
-                    }
                 } else if (isMissed) {
                     className += 'missed';
                 } else {
@@ -2709,10 +2831,152 @@
                 dayDiv.className = className;
                 dayDiv.textContent = currentDate.getDate();
                 dayDiv.onclick = () => toggleGoalCompletion(goal.id, dateStr);
-                dayDiv.title = `${formatDate(dateStr)} - ${isCompleted ? 'Tamamlandı' : 'Henüz tamamlanmadı'}`;
+                dayDiv.title = `${formatDate(dateStr)} - ${isCompleted ? 'Tamamlandı ✓' : isMissed ? 'Atlandı ✗' : 'Tamamlanmadı'}`;
                 
-                chainContainer.appendChild(dayDiv);
+                container.appendChild(dayDiv);
             }
+        }
+
+        // Render weekly chain view - show weeks instead of days
+        function renderWeeklyChainView(goal, container, today) {
+            const weeksToShow = 8;
+            const goalStartDate = new Date(goal.startDate);
+            goalStartDate.setHours(0, 0, 0, 0);
+            
+            const currentWeekStart = getWeekStart(today);
+            let displayWeekStart = new Date(currentWeekStart);
+            displayWeekStart.setDate(currentWeekStart.getDate() - (weeksToShow - 1) * 7);
+            
+            // Don't show weeks before goal start
+            const goalWeekStart = getWeekStart(goalStartDate);
+            if (displayWeekStart < goalWeekStart) {
+                displayWeekStart = new Date(goalWeekStart);
+            }
+            
+            for (let i = 0; i < weeksToShow; i++) {
+                const weekStart = new Date(displayWeekStart);
+                weekStart.setDate(displayWeekStart.getDate() + i * 7);
+                
+                if (weekStart > currentWeekStart) break;
+                
+                const weekEnd = new Date(weekStart);
+                weekEnd.setDate(weekStart.getDate() + 6);
+                
+                const weekDiv = document.createElement('div');
+                
+                // Check if week has any completion
+                const hasCompletion = goal.completions.some(dateStr => {
+                    const compDate = new Date(dateStr);
+                    return compDate >= weekStart && compDate <= weekEnd;
+                });
+                
+                const isCurrentWeek = weekStart.getTime() === currentWeekStart.getTime();
+                const isPastWeek = weekEnd < today;
+                const isMissed = isPastWeek && !hasCompletion && weekStart >= goalStartDate;
+                
+                let className = 'chain-day ';
+                if (isCurrentWeek) {
+                    className += hasCompletion ? 'completed today-completed' : 'today';
+                } else if (hasCompletion) {
+                    className += 'completed';
+                } else if (isMissed) {
+                    className += 'missed';
+                } else {
+                    className += 'future';
+                }
+                
+                weekDiv.className = className;
+                
+                // Show week number or first day
+                const weekNum = getWeekNumber(weekStart);
+                weekDiv.innerHTML = `<div class="text-xs">${weekNum}</div>`;
+                
+                // Click handler - mark today for this week
+                weekDiv.onclick = () => {
+                    const dateToMark = isCurrentWeek ? today.toISOString().split('T')[0] : 
+                                      (weekEnd < today ? weekEnd : weekStart).toISOString().split('T')[0];
+                    toggleGoalCompletion(goal.id, dateToMark);
+                };
+                
+                weekDiv.title = `Hafta ${weekNum} (${formatDate(weekStart.toISOString().split('T')[0])} - ${formatDate(weekEnd.toISOString().split('T')[0])})${hasCompletion ? ' - Tamamlandı ✓' : isMissed ? ' - Atlandı ✗' : ''}`;
+                
+                container.appendChild(weekDiv);
+            }
+        }
+
+        // Render monthly chain view - show months
+        function renderMonthlyChainView(goal, container, today) {
+            const monthsToShow = 6;
+            const goalStartDate = new Date(goal.startDate);
+            goalStartDate.setHours(0, 0, 0, 0);
+            
+            const currentMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+            let displayMonth = new Date(currentMonth);
+            displayMonth.setMonth(currentMonth.getMonth() - (monthsToShow - 1));
+            
+            // Don't show months before goal start
+            const goalMonthStart = new Date(goalStartDate.getFullYear(), goalStartDate.getMonth(), 1);
+            if (displayMonth < goalMonthStart) {
+                displayMonth = new Date(goalMonthStart);
+            }
+            
+            for (let i = 0; i < monthsToShow; i++) {
+                const monthStart = new Date(displayMonth);
+                monthStart.setMonth(displayMonth.getMonth() + i);
+                
+                if (monthStart > currentMonth) break;
+                
+                const monthEnd = new Date(monthStart.getFullYear(), monthStart.getMonth() + 1, 0);
+                
+                const monthDiv = document.createElement('div');
+                
+                // Check if month has any completion
+                const hasCompletion = goal.completions.some(dateStr => {
+                    const compDate = new Date(dateStr);
+                    return compDate >= monthStart && compDate <= monthEnd;
+                });
+                
+                const isCurrentMonth = monthStart.getTime() === currentMonth.getTime();
+                const isPastMonth = monthEnd < today;
+                const isMissed = isPastMonth && !hasCompletion && monthStart >= goalMonthStart;
+                
+                let className = 'chain-day ';
+                if (isCurrentMonth) {
+                    className += hasCompletion ? 'completed today-completed' : 'today';
+                } else if (hasCompletion) {
+                    className += 'completed';
+                } else if (isMissed) {
+                    className += 'missed';
+                } else {
+                    className += 'future';
+                }
+                
+                monthDiv.className = className;
+                
+                // Show month abbreviation
+                const monthNames = ['Oca', 'Şub', 'Mar', 'Nis', 'May', 'Haz', 'Tem', 'Ağu', 'Eyl', 'Eki', 'Kas', 'Ara'];
+                monthDiv.innerHTML = `<div class="text-xs">${monthNames[monthStart.getMonth()]}</div>`;
+                
+                // Click handler - mark today for this month
+                monthDiv.onclick = () => {
+                    const dateToMark = isCurrentMonth ? today.toISOString().split('T')[0] : 
+                                      (monthEnd < today ? monthEnd : monthStart).toISOString().split('T')[0];
+                    toggleGoalCompletion(goal.id, dateToMark);
+                };
+                
+                monthDiv.title = `${monthNames[monthStart.getMonth()]} ${monthStart.getFullYear()}${hasCompletion ? ' - Tamamlandı ✓' : isMissed ? ' - Atlandı ✗' : ''}`;
+                
+                container.appendChild(monthDiv);
+            }
+        }
+
+        // Get week number
+        function getWeekNumber(date) {
+            const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+            const dayNum = d.getUTCDay() || 7;
+            d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+            const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+            return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
         }
 
         // Check if a day should be completed based on frequency
@@ -2720,16 +2984,59 @@
             const goalStart = new Date(goal.startDate);
             goalStart.setHours(0, 0, 0, 0);
             
-            if (date < goalStart) return false;
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            if (date < goalStart || date > today) return false;
             
             // For daily goals, every day should be completed
             if (goal.frequency === 'daily') {
                 return true;
             }
             
-            // For weekly/monthly, we don't mark specific days as "should be completed"
-            // User can complete on any day within the period
+            // For weekly goals, check if the week is missed
+            if (goal.frequency === 'weekly') {
+                const weekStart = getWeekStart(date);
+                const weekEnd = new Date(weekStart);
+                weekEnd.setDate(weekStart.getDate() + 6);
+                
+                // If the week has ended and no completion in that week, mark all days in the week as missed
+                if (weekEnd < today) {
+                    const hasCompletionInWeek = goal.completions.some(dateStr => {
+                        const compDate = new Date(dateStr);
+                        return compDate >= weekStart && compDate <= weekEnd;
+                    });
+                    return !hasCompletionInWeek;
+                }
+                return false;
+            }
+            
+            // For monthly goals, check if the month is missed
+            if (goal.frequency === 'monthly') {
+                const monthStart = new Date(date.getFullYear(), date.getMonth(), 1);
+                const monthEnd = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+                
+                // If the month has ended and no completion in that month, mark all days in the month as missed
+                if (monthEnd < today) {
+                    const hasCompletionInMonth = goal.completions.some(dateStr => {
+                        const compDate = new Date(dateStr);
+                        return compDate >= monthStart && compDate <= monthEnd;
+                    });
+                    return !hasCompletionInMonth;
+                }
+                return false;
+            }
+            
             return false;
+        }
+
+        // Get week start (Monday)
+        function getWeekStart(date) {
+            const d = new Date(date);
+            d.setHours(0, 0, 0, 0);
+            const day = d.getDay();
+            const diff = d.getDate() - day + (day === 0 ? -6 : 1); // Adjust when day is Sunday
+            return new Date(d.setDate(diff));
         }
 
         // Calculate completion rate
@@ -2748,21 +3055,54 @@
             if (relevantEndDate < startDate) return 0;
             
             let expectedCompletions = 0;
-            let actualCompletions = goal.completions.filter(dateStr => {
-                const compDate = new Date(dateStr);
-                return compDate >= startDate && compDate <= relevantEndDate;
-            }).length;
+            let actualCompletions = 0;
             
             if (goal.frequency === 'daily') {
                 const daysPassed = Math.floor((relevantEndDate - startDate) / (1000 * 60 * 60 * 24)) + 1;
                 expectedCompletions = daysPassed;
+                actualCompletions = goal.completions.filter(dateStr => {
+                    const compDate = new Date(dateStr);
+                    return compDate >= startDate && compDate <= relevantEndDate;
+                }).length;
             } else if (goal.frequency === 'weekly') {
-                const weeksPassed = Math.ceil((relevantEndDate - startDate) / (1000 * 60 * 60 * 24 * 7));
-                expectedCompletions = weeksPassed;
+                // Count completed weeks vs total weeks
+                let currentWeekStart = getWeekStart(startDate);
+                const lastWeekStart = getWeekStart(relevantEndDate);
+                
+                while (currentWeekStart <= lastWeekStart) {
+                    expectedCompletions++;
+                    
+                    const weekEnd = new Date(currentWeekStart);
+                    weekEnd.setDate(currentWeekStart.getDate() + 6);
+                    
+                    const hasCompletion = goal.completions.some(dateStr => {
+                        const compDate = new Date(dateStr);
+                        return compDate >= currentWeekStart && compDate <= weekEnd && compDate >= startDate;
+                    });
+                    
+                    if (hasCompletion) actualCompletions++;
+                    
+                    currentWeekStart.setDate(currentWeekStart.getDate() + 7);
+                }
             } else if (goal.frequency === 'monthly') {
-                const monthsPassed = (relevantEndDate.getFullYear() - startDate.getFullYear()) * 12 
-                    + (relevantEndDate.getMonth() - startDate.getMonth()) + 1;
-                expectedCompletions = monthsPassed;
+                // Count completed months vs total months
+                let currentMonth = new Date(startDate.getFullYear(), startDate.getMonth(), 1);
+                const lastMonth = new Date(relevantEndDate.getFullYear(), relevantEndDate.getMonth(), 1);
+                
+                while (currentMonth <= lastMonth) {
+                    expectedCompletions++;
+                    
+                    const monthEnd = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 0);
+                    
+                    const hasCompletion = goal.completions.some(dateStr => {
+                        const compDate = new Date(dateStr);
+                        return compDate >= currentMonth && compDate <= monthEnd && compDate >= startDate;
+                    });
+                    
+                    if (hasCompletion) actualCompletions++;
+                    
+                    currentMonth.setMonth(currentMonth.getMonth() + 1);
+                }
             }
             
             if (expectedCompletions === 0) return 0;
@@ -2805,30 +3145,57 @@
             // Find best streak
             const bestStreak = Math.max(...activeGoals.map(g => getCurrentStreak(g)));
             
-            // Check if any goal needs completion today
+            // Check if any goal needs completion today/this period
             const today = new Date().toISOString().split('T')[0];
-            const needsCompletionToday = activeGoals.some(g => 
-                g.frequency === 'daily' && !g.completions.includes(today)
-            );
+            const needsCompletionToday = activeGoals.some(g => {
+                if (g.frequency === 'daily') {
+                    return !g.completions.includes(today);
+                } else if (g.frequency === 'weekly') {
+                    const weekStart = getWeekStart(new Date());
+                    const weekEnd = new Date(weekStart);
+                    weekEnd.setDate(weekStart.getDate() + 6);
+                    return !g.completions.some(dateStr => {
+                        const compDate = new Date(dateStr);
+                        return compDate >= weekStart && compDate <= weekEnd;
+                    });
+                } else if (g.frequency === 'monthly') {
+                    const now = new Date();
+                    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+                    const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+                    return !g.completions.some(dateStr => {
+                        const compDate = new Date(dateStr);
+                        return compDate >= monthStart && compDate <= monthEnd;
+                    });
+                }
+                return false;
+            });
             
             let title = '';
             let text = '';
             
+            // Find the goal with best streak to get its frequency
+            const bestStreakGoal = activeGoals.find(g => getCurrentStreak(g) === bestStreak) || activeGoals[0];
+            const streakUnit = bestStreakGoal ? (
+                bestStreakGoal.frequency === 'daily' ? 'günlük' : 
+                bestStreakGoal.frequency === 'weekly' ? 'haftalık' : 'aylık'
+            ) : 'günlük';
+            
             if (bestStreak >= 21) {
                 title = 'İnanılmaz! 🌟';
-                text = `${bestStreak} günlük serinle efsane oluyorsun! Vazgeçme!`;
+                text = `${bestStreak} ${streakUnit} serinle efsane oluyorsun! Vazgeçme!`;
             } else if (bestStreak >= 14) {
                 title = 'Mükemmel gidiyorsun! 🎯';
-                text = `${bestStreak} günlük serin var! İki haftayı geçtin!`;
+                text = `${bestStreak} ${streakUnit} serin var! Harika bir performans!`;
             } else if (bestStreak >= 7) {
-                title = 'Harika! Bir hafta geride kaldı! ✨';
-                text = `${bestStreak} günlük serin var. Devam et!`;
+                const periodText = streakUnit === 'haftalık' ? 'ay' : streakUnit === 'aylık' ? 'dönem' : 'hafta';
+                title = `Harika! Bir ${periodText} geride kaldı! ✨`;
+                text = `${bestStreak} ${streakUnit} serin var. Devam et!`;
             } else if (bestStreak >= 3) {
                 title = 'Güzel başlangıç! 🔥';
-                text = `${bestStreak} günlük serin var. Zinciri kırmayalım!`;
+                text = `${bestStreak} ${streakUnit} serin var. Zinciri kırmayalım!`;
             } else if (needsCompletionToday) {
-                title = 'Bugünkü hedeflerini tamamladın mı? ⏰';
-                text = 'Zincirini kırmamak için bugünkü görevlerini yapmayı unutma!';
+                title = 'Hedeflerini tamamladın mı? ⏰';
+                text = 'Zincirini kırmamak için görevlerini yapmayı unutma!';
             } else {
                 title = 'Başlayalım! 💪';
                 text = 'Her gün biraz daha ilerle, alışkanlık oluştur!';
@@ -2839,12 +3206,258 @@
             motivationDiv.classList.remove('hidden');
         }
 
-        // Toggle expanded chain view (future enhancement - could show full calendar)
+        // Toggle expanded chain view - show full calendar
+        let currentCalendarGoal = null;
+        let currentCalendarDate = new Date();
+
         function toggleChainView(goalId) {
-            // This could open a modal with full calendar view
-            // For now, just show a toast
-            showToast('Tam takvim görünümü yakında eklenecek!', 'info');
+            const goals = storage.getGoals();
+            const goal = goals.find(g => g.id === goalId);
+            
+            if (!goal) return;
+            
+            currentCalendarGoal = goal;
+            currentCalendarDate = new Date();
+            
+            openFullCalendarModal();
         }
+
+        // Open full calendar modal
+        function openFullCalendarModal() {
+            if (!currentCalendarGoal) return;
+            
+            const modal = document.getElementById('fullCalendarModal');
+            modal.classList.remove('hidden');
+            
+            renderFullCalendar();
+        }
+
+        // Close full calendar modal
+        function closeFullCalendarModal() {
+            document.getElementById('fullCalendarModal').classList.add('hidden');
+            currentCalendarGoal = null;
+        }
+
+        // Render full calendar
+        function renderFullCalendar() {
+            if (!currentCalendarGoal) return;
+            
+            const goal = currentCalendarGoal;
+            const monthYear = document.getElementById('calendarMonthYear');
+            const goalTitle = document.getElementById('calendarGoalTitle');
+            const frequencyEl = document.getElementById('calendarGoalFrequency');
+            const daysGrid = document.getElementById('calendarDaysGrid');
+            
+            // Set title
+            goalTitle.textContent = goal.name;
+            
+            const frequencyText = {
+                'daily': 'Günlük Hedef',
+                'weekly': 'Haftalık Hedef',
+                'monthly': 'Aylık Hedef'
+            };
+            frequencyEl.textContent = frequencyText[goal.frequency];
+            
+            // Set month/year
+            const months = ['Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran', 
+                           'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'];
+            monthYear.textContent = `${months[currentCalendarDate.getMonth()]} ${currentCalendarDate.getFullYear()}`;
+            
+            // Update period stats for weekly/monthly goals
+            if (goal.frequency !== 'daily') {
+                updatePeriodStats(goal);
+            }
+            
+            // Render calendar days
+            daysGrid.innerHTML = '';
+            
+            const year = currentCalendarDate.getFullYear();
+            const month = currentCalendarDate.getMonth();
+            
+            // First day of month (0 = Sunday, 1 = Monday, etc.)
+            const firstDay = new Date(year, month, 1);
+            const lastDay = new Date(year, month + 1, 0);
+            
+            // Adjust for Monday start (0 = Monday, 6 = Sunday)
+            let startPadding = firstDay.getDay() - 1;
+            if (startPadding < 0) startPadding = 6;
+            
+            // Add padding for days before month starts
+            for (let i = 0; i < startPadding; i++) {
+                const emptyDiv = document.createElement('div');
+                emptyDiv.className = 'aspect-square';
+                daysGrid.appendChild(emptyDiv);
+            }
+            
+            // Add actual days
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            const goalStart = new Date(goal.startDate);
+            goalStart.setHours(0, 0, 0, 0);
+            
+            const goalEnd = new Date(goal.endDate);
+            goalEnd.setHours(0, 0, 0, 0);
+            
+            for (let day = 1; day <= lastDay.getDate(); day++) {
+                const currentDate = new Date(year, month, day);
+                currentDate.setHours(0, 0, 0, 0);
+                
+                const dateStr = currentDate.toISOString().split('T')[0];
+                const dayDiv = document.createElement('div');
+                
+                const isCompleted = goal.completions.includes(dateStr);
+                const isToday = currentDate.getTime() === today.getTime();
+                const isFuture = currentDate > today;
+                const isBeforeStart = currentDate < goalStart;
+                const isAfterEnd = currentDate > goalEnd;
+                const isInGoalPeriod = currentDate >= goalStart && currentDate <= goalEnd;
+                
+                let className = 'aspect-square rounded-lg flex items-center justify-center font-semibold cursor-pointer transition-all hover:scale-105 ';
+                
+                if (isBeforeStart || isAfterEnd) {
+                    className += 'bg-gray-100 text-gray-300 cursor-not-allowed';
+                    dayDiv.onclick = null;
+                } else if (isFuture) {
+                    className += 'bg-gray-100 text-gray-400 cursor-not-allowed';
+                    dayDiv.onclick = null;
+                } else if (isToday) {
+                    className += isCompleted 
+                        ? 'bg-gradient-to-br from-success to-green-600 text-white shadow-lg ring-4 ring-warning/30' 
+                        : 'bg-gradient-to-br from-warning to-orange-600 text-white shadow-lg ring-4 ring-warning/30';
+                    dayDiv.onclick = () => toggleGoalCompletion(goal.id, dateStr);
+                } else if (isCompleted) {
+                    className += 'bg-gradient-to-br from-success to-green-600 text-white shadow-md';
+                    dayDiv.onclick = () => toggleGoalCompletion(goal.id, dateStr);
+                } else {
+                    // Check if should be completed based on frequency
+                    const shouldBeCompleted = shouldDayBeCompleted(goal, currentDate);
+                    className += shouldBeCompleted 
+                        ? 'bg-red-100 text-red-600 border-2 border-red-200' 
+                        : 'bg-gray-50 text-gray-600 hover:bg-gray-100';
+                    dayDiv.onclick = () => toggleGoalCompletion(goal.id, dateStr);
+                }
+                
+                dayDiv.className = className;
+                dayDiv.textContent = day;
+                
+                // Add tooltip
+                const tooltipText = isCompleted ? 'Tamamlandı ✓' : 
+                                   isFuture ? 'Gelecek tarih' :
+                                   isBeforeStart ? 'Hedef başlangıcından önce' :
+                                   isAfterEnd ? 'Hedef bitişinden sonra' :
+                                   'Tıklayarak işaretle';
+                dayDiv.title = `${day} ${months[month]} - ${tooltipText}`;
+                
+                daysGrid.appendChild(dayDiv);
+            }
+        }
+
+        // Update period stats for weekly/monthly goals
+        function updatePeriodStats(goal) {
+            const statsDiv = document.getElementById('periodStats');
+            
+            if (goal.frequency === 'daily') {
+                statsDiv.classList.add('hidden');
+                return;
+            }
+            
+            statsDiv.classList.remove('hidden');
+            
+            const currentStreak = getCurrentStreak(goal);
+            const completedPeriods = getCompletedPeriodsCount(goal);
+            const totalPeriods = getTotalPeriodsCount(goal);
+            
+            document.getElementById('periodCurrentStreak').textContent = currentStreak;
+            document.getElementById('periodCompletedCount').textContent = completedPeriods;
+            document.getElementById('periodTotalPeriods').textContent = totalPeriods;
+        }
+
+        // Get completed periods count
+        function getCompletedPeriodsCount(goal) {
+            if (!goal.completions || goal.completions.length === 0) return 0;
+            
+            const start = new Date(goal.startDate);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            const end = new Date(goal.endDate);
+            const relevantEnd = today < end ? today : end;
+            
+            if (goal.frequency === 'weekly') {
+                let count = 0;
+                let currentWeekStart = new Date(start);
+                currentWeekStart.setDate(start.getDate() - start.getDay() + 1); // Monday
+                
+                while (currentWeekStart <= relevantEnd) {
+                    const weekEnd = new Date(currentWeekStart);
+                    weekEnd.setDate(currentWeekStart.getDate() + 6);
+                    
+                    const hasCompletion = goal.completions.some(dateStr => {
+                        const date = new Date(dateStr);
+                        return date >= currentWeekStart && date <= weekEnd && date >= start;
+                    });
+                    
+                    if (hasCompletion) count++;
+                    currentWeekStart.setDate(currentWeekStart.getDate() + 7);
+                }
+                
+                return count;
+            } else if (goal.frequency === 'monthly') {
+                let count = 0;
+                let currentMonth = new Date(start.getFullYear(), start.getMonth(), 1);
+                
+                while (currentMonth <= relevantEnd) {
+                    const monthEnd = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 0);
+                    
+                    const hasCompletion = goal.completions.some(dateStr => {
+                        const date = new Date(dateStr);
+                        return date >= currentMonth && date <= monthEnd && date >= start;
+                    });
+                    
+                    if (hasCompletion) count++;
+                    currentMonth.setMonth(currentMonth.getMonth() + 1);
+                }
+                
+                return count;
+            }
+            
+            return 0;
+        }
+
+        // Get total periods count
+        function getTotalPeriodsCount(goal) {
+            const start = new Date(goal.startDate);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            const end = new Date(goal.endDate);
+            const relevantEnd = today < end ? today : end;
+            
+            if (goal.frequency === 'weekly') {
+                const weeks = Math.ceil((relevantEnd - start) / (1000 * 60 * 60 * 24 * 7));
+                return Math.max(1, weeks);
+            } else if (goal.frequency === 'monthly') {
+                const months = (relevantEnd.getFullYear() - start.getFullYear()) * 12 
+                    + (relevantEnd.getMonth() - start.getMonth()) + 1;
+                return Math.max(1, months);
+            }
+            
+            return 0;
+        }
+
+        // Calendar navigation event listeners
+        document.getElementById('closeCalendarModal')?.addEventListener('click', closeFullCalendarModal);
+        
+        document.getElementById('prevCalendarMonth')?.addEventListener('click', () => {
+            currentCalendarDate.setMonth(currentCalendarDate.getMonth() - 1);
+            renderFullCalendar();
+        });
+        
+        document.getElementById('nextCalendarMonth')?.addEventListener('click', () => {
+            currentCalendarDate.setMonth(currentCalendarDate.getMonth() + 1);
+            renderFullCalendar();
+        });
 
         // Escape HTML to prevent XSS
         function escapeHtml(text) {
