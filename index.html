@@ -2451,14 +2451,73 @@
             }
             
             const completionIndex = goal.completions.indexOf(dateStr);
+            const isRemoving = completionIndex > -1;
             
-            if (completionIndex > -1) {
-                // Remove completion
-                goal.completions.splice(completionIndex, 1);
-                showToast('Tamamlanma işareti kaldırıldı', 'info');
+            // Get dates to toggle based on frequency
+            const datesToToggle = [];
+            
+            if (goal.frequency === 'weekly') {
+                // Get all days in the week of the clicked date
+                const weekStart = getWeekStart(clickedDate);
+                const goalStart = new Date(goal.startDate);
+                goalStart.setHours(0, 0, 0, 0);
+                const goalEnd = new Date(goal.endDate);
+                goalEnd.setHours(0, 0, 0, 0);
+                
+                for (let i = 0; i < 7; i++) {
+                    const currentDay = new Date(weekStart);
+                    currentDay.setDate(weekStart.getDate() + i);
+                    
+                    // Only include days within goal period and not in the future
+                    if (currentDay >= goalStart && currentDay <= goalEnd && currentDay <= todayDate) {
+                        datesToToggle.push(currentDay.toISOString().split('T')[0]);
+                    }
+                }
+            } else if (goal.frequency === 'monthly') {
+                // Get all days in the month of the clicked date
+                const monthStart = new Date(clickedDate.getFullYear(), clickedDate.getMonth(), 1);
+                const monthEnd = new Date(clickedDate.getFullYear(), clickedDate.getMonth() + 1, 0);
+                const goalStart = new Date(goal.startDate);
+                goalStart.setHours(0, 0, 0, 0);
+                const goalEnd = new Date(goal.endDate);
+                goalEnd.setHours(0, 0, 0, 0);
+                
+                for (let day = 1; day <= monthEnd.getDate(); day++) {
+                    const currentDay = new Date(clickedDate.getFullYear(), clickedDate.getMonth(), day);
+                    
+                    // Only include days within goal period and not in the future
+                    if (currentDay >= goalStart && currentDay <= goalEnd && currentDay <= todayDate) {
+                        datesToToggle.push(currentDay.toISOString().split('T')[0]);
+                    }
+                }
             } else {
-                // Add completion
-                goal.completions.push(dateStr);
+                // Daily frequency - just toggle the single day
+                datesToToggle.push(dateStr);
+            }
+            
+            if (isRemoving) {
+                // Remove all dates in the period
+                datesToToggle.forEach(date => {
+                    const index = goal.completions.indexOf(date);
+                    if (index > -1) {
+                        goal.completions.splice(index, 1);
+                    }
+                });
+                
+                if (goal.frequency === 'weekly') {
+                    showToast('Haftalık tamamlanma işaretleri kaldırıldı', 'info');
+                } else if (goal.frequency === 'monthly') {
+                    showToast('Aylık tamamlanma işaretleri kaldırıldı', 'info');
+                } else {
+                    showToast('Tamamlanma işareti kaldırıldı', 'info');
+                }
+            } else {
+                // Add all dates in the period
+                datesToToggle.forEach(date => {
+                    if (!goal.completions.includes(date)) {
+                        goal.completions.push(date);
+                    }
+                });
                 goal.completions.sort();
                 
                 // Check if this creates/extends a streak
@@ -2468,6 +2527,10 @@
                 
                 if (currentStreak >= 3) {
                     showToast(`Harika! ${currentStreak} ${streakUnit} serin var! 🔥`, 'success');
+                } else if (goal.frequency === 'weekly') {
+                    showToast(`Hafta tamamlandı olarak işaretlendi! ✓ (${datesToToggle.length} gün)`, 'success');
+                } else if (goal.frequency === 'monthly') {
+                    showToast(`Ay tamamlandı olarak işaretlendi! ✓ (${datesToToggle.length} gün)`, 'success');
                 } else {
                     showToast('Tamamlandı olarak işaretlendi! ✓', 'success');
                 }
