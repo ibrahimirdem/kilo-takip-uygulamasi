@@ -366,8 +366,31 @@
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Hedef Kilo (kg)</label>
                             <div class="relative">
-                                <input type="number" id="targetWeight" step="0.1" min="0" placeholder="Örn: 70.0" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" required>
+                                <input type="number" id="targetWeight" step="0.1" min="0" placeholder="Örn: 70.0" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
                                 <i class="fas fa-weight absolute right-3 top-3.5 text-gray-400"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Hedef Boyun (cm)</label>
+                            <div class="relative">
+                                <input type="number" id="targetNeck" step="0.1" min="0" placeholder="Örn: 35.0" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                                <i class="fas fa-ruler absolute right-3 top-3.5 text-gray-400"></i>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Hedef Bel (cm)</label>
+                            <div class="relative">
+                                <input type="number" id="targetWaist" step="0.1" min="0" placeholder="Örn: 80.0" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                                <i class="fas fa-ruler-horizontal absolute right-3 top-3.5 text-gray-400"></i>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Hedef Kalça (cm)</label>
+                            <div class="relative">
+                                <input type="number" id="targetHip" step="0.1" min="0" placeholder="Örn: 95.0" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                                <i class="fas fa-ruler-combined absolute right-3 top-3.5 text-gray-400"></i>
                             </div>
                         </div>
                     </div>
@@ -423,7 +446,10 @@
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-gray-500 text-sm font-medium">Son Boyun Ölçüsü</p>
-                        <p id="currentNeck" class="text-3xl font-bold text-dark mt-1">--</p>
+                        <div class="flex items-baseline gap-2">
+                            <p id="currentNeck" class="text-3xl font-bold text-dark mt-1">--</p>
+                            <span id="neckDiff" class="text-xs font-medium"></span>
+                        </div>
                     </div>
                     <div class="bg-primary/10 p-3 rounded-full">
                         <i class="fas fa-ruler text-primary text-xl"></i>
@@ -435,7 +461,10 @@
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-gray-500 text-sm font-medium">Son Bel Ölçüsü</p>
-                        <p id="currentWaist" class="text-3xl font-bold text-dark mt-1">--</p>
+                        <div class="flex items-baseline gap-2">
+                            <p id="currentWaist" class="text-3xl font-bold text-dark mt-1">--</p>
+                            <span id="waistDiff" class="text-xs font-medium"></span>
+                        </div>
                     </div>
                     <div class="bg-secondary/10 p-3 rounded-full">
                         <i class="fas fa-ruler-horizontal text-secondary text-xl"></i>
@@ -447,7 +476,10 @@
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-gray-500 text-sm font-medium">Son Kalça Ölçüsü</p>
-                        <p id="currentHip" class="text-3xl font-bold text-dark mt-1">--</p>
+                        <div class="flex items-baseline gap-2">
+                            <p id="currentHip" class="text-3xl font-bold text-dark mt-1">--</p>
+                            <span id="hipDiff" class="text-xs font-medium"></span>
+                        </div>
                     </div>
                     <div class="bg-warning/10 p-3 rounded-full">
                         <i class="fas fa-ruler-combined text-warning text-xl"></i>
@@ -679,6 +711,16 @@
                 const userId = getUserId();
                 const key = `profile_${userId}`;
                 localStorage.setItem(key, JSON.stringify(profile));
+            },
+            getMeasurementTargets: () => {
+                const userId = getUserId();
+                const key = `measurementTargets_${userId}`;
+                return JSON.parse(localStorage.getItem(key)) || [];
+            },
+            saveMeasurementTargets: (targets) => {
+                const userId = getUserId();
+                const key = `measurementTargets_${userId}`;
+                localStorage.setItem(key, JSON.stringify(targets));
             }
         };
 
@@ -960,13 +1002,25 @@
             e.preventDefault();
             
             const targetDate = document.getElementById('targetDate').value;
-            const targetWeight = parseFloat(document.getElementById('targetWeight').value);
+            const targetWeightValue = document.getElementById('targetWeight').value;
+            const targetNeckValue = document.getElementById('targetNeck').value;
+            const targetWaistValue = document.getElementById('targetWaist').value;
+            const targetHipValue = document.getElementById('targetHip').value;
             const description = document.getElementById('targetDescription').value;
+            
+            // Check if at least one target is provided
+            if (!targetWeightValue && !targetNeckValue && !targetWaistValue && !targetHipValue) {
+                showToast('Lütfen en az bir hedef değeri girin!', 'error');
+                return;
+            }
             
             const newTarget = {
                 id: Date.now(),
                 date: targetDate,
-                weight: targetWeight,
+                weight: targetWeightValue ? parseFloat(targetWeightValue) : null,
+                neck: targetNeckValue ? parseFloat(targetNeckValue) : null,
+                waist: targetWaistValue ? parseFloat(targetWaistValue) : null,
+                hip: targetHipValue ? parseFloat(targetHipValue) : null,
                 description: description,
                 completed: false
             };
@@ -1074,6 +1128,8 @@
             
             const weights = storage.getWeights();
             const currentWeight = weights.length > 0 ? weights[weights.length - 1].weight : null;
+            const measurements = storage.getMeasurements();
+            const currentMeasurement = measurements.length > 0 ? measurements[measurements.length - 1] : null;
             
             targets.forEach(target => {
                 const targetItem = document.createElement('div');
@@ -1084,10 +1140,18 @@
                 const diffTime = targetDate - today;
                 const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
                 
+                // Build target details string
+                let targetDetails = [];
+                if (target.weight) targetDetails.push(`${target.weight} kg`);
+                if (target.neck) targetDetails.push(`Boyun: ${target.neck} cm`);
+                if (target.waist) targetDetails.push(`Bel: ${target.waist} cm`);
+                if (target.hip) targetDetails.push(`Kalça: ${target.hip} cm`);
+                const targetDetailsStr = targetDetails.join(' | ');
+                
                 let progressHtml = '';
                 let statusHtml = '';
                 
-                if (currentWeight !== null) {
+                if (target.weight && currentWeight !== null) {
                     const startingWeight = weights.length > 0 ? weights[0].weight : currentWeight;
                     const totalChange = currentWeight - startingWeight;
                     const targetChange = target.weight - startingWeight;
@@ -1121,22 +1185,67 @@
                             <div class="bg-gray-400 h-2.5 rounded-full" style="width: 0%"></div>
                         </div>
                     `;
-                    statusHtml = '<span class="text-gray-500 text-sm">Kilo kaydı yok</span>';
+                    statusHtml = '<span class="text-gray-500 text-sm">Veri yok</span>';
+                }
+                
+                // Build measurement status HTML
+                let measurementStatusHtml = '';
+                if (currentMeasurement) {
+                    let measurementStatuses = [];
+                    
+                    if (target.neck) {
+                        const diff = currentMeasurement.neck - target.neck;
+                        if (Math.abs(diff) < 0.1) {
+                            measurementStatuses.push(`<span class="text-xs text-success">✓ Boyun hedefe ulaştı</span>`);
+                        } else {
+                            const remaining = Math.abs(diff);
+                            const status = diff > 0 ? `${remaining.toFixed(1)} cm fazla` : `${remaining.toFixed(1)} cm kaldı`;
+                            measurementStatuses.push(`<span class="text-xs text-gray-600">Boyun: ${status}</span>`);
+                        }
+                    }
+                    
+                    if (target.waist) {
+                        const diff = currentMeasurement.waist - target.waist;
+                        if (Math.abs(diff) < 0.1) {
+                            measurementStatuses.push(`<span class="text-xs text-success">✓ Bel hedefe ulaştı</span>`);
+                        } else {
+                            const remaining = Math.abs(diff);
+                            const status = diff > 0 ? `${remaining.toFixed(1)} cm fazla` : `${remaining.toFixed(1)} cm kaldı`;
+                            measurementStatuses.push(`<span class="text-xs text-gray-600">Bel: ${status}</span>`);
+                        }
+                    }
+                    
+                    if (target.hip) {
+                        const diff = currentMeasurement.hip - target.hip;
+                        if (Math.abs(diff) < 0.1) {
+                            measurementStatuses.push(`<span class="text-xs text-success">✓ Kalça hedefe ulaştı</span>`);
+                        } else {
+                            const remaining = Math.abs(diff);
+                            const status = diff > 0 ? `${remaining.toFixed(1)} cm fazla` : `${remaining.toFixed(1)} cm kaldı`;
+                            measurementStatuses.push(`<span class="text-xs text-gray-600">Kalça: ${status}</span>`);
+                        }
+                    }
+                    
+                    if (measurementStatuses.length > 0) {
+                        measurementStatusHtml = `<div class="mt-2 space-y-1">${measurementStatuses.join('<br>')}</div>`;
+                    }
                 }
                 
                 targetItem.innerHTML = `
-                    <div class="flex flex-col md:flex-row md:items-center md:justify-between">
+                    <div class="flex flex-col md:flex-row md:items-start md:justify-between">
                         <div class="mb-4 md:mb-0 md:flex-1">
                             <div class="flex items-center">
                                 <div class="bg-primary/10 p-2 rounded-lg mr-3">
                                     <i class="fas fa-bullseye text-primary"></i>
                                 </div>
                                 <div>
-                                    <h3 class="text-lg font-semibold">${formatDate(target.date)} - ${target.weight} kg</h3>
-                                    <p class="text-gray-600 text-sm">${target.description || 'Açıklama yok'}</p>
+                                    <h3 class="text-lg font-semibold">${formatDate(target.date)}</h3>
+                                    <p class="text-gray-600 text-sm">${targetDetailsStr}</p>
+                                    ${target.description ? `<p class="text-gray-500 text-xs mt-1">${target.description}</p>` : ''}
                                 </div>
                             </div>
                             ${progressHtml}
+                            ${measurementStatusHtml}
                         </div>
                         <div class="flex flex-col items-end">
                             <div class="mb-2">${statusHtml}</div>
@@ -1546,15 +1655,46 @@
                 document.getElementById('currentWaist').textContent = '--';
                 document.getElementById('currentHip').textContent = '--';
                 document.getElementById('currentBodyFat').textContent = '--';
+                document.getElementById('neckDiff').textContent = '';
+                document.getElementById('waistDiff').textContent = '';
+                document.getElementById('hipDiff').textContent = '';
                 return;
             }
             
             const latest = measurements[measurements.length - 1];
+            const first = measurements[0];
             const profile = storage.getProfile();
+            
+            // Helper function to display difference
+            function displayDiff(currentValue, initialValue, elementId) {
+                const diff = currentValue - initialValue;
+                const diffElement = document.getElementById(elementId);
+                
+                if (Math.abs(diff) < 0.01) {
+                    // No significant change
+                    diffElement.textContent = '';
+                } else {
+                    const sign = diff > 0 ? '+' : '';
+                    const color = diff < 0 ? '#10b981' : '#ef4444'; // green for decrease, red for increase
+                    diffElement.textContent = `(${sign}${diff.toFixed(1)})`;
+                    diffElement.style.color = color;
+                }
+            }
             
             document.getElementById('currentNeck').textContent = `${latest.neck} cm`;
             document.getElementById('currentWaist').textContent = `${latest.waist} cm`;
             document.getElementById('currentHip').textContent = `${latest.hip} cm`;
+            
+            // Display differences from initial measurements
+            if (measurements.length > 1) {
+                displayDiff(latest.neck, first.neck, 'neckDiff');
+                displayDiff(latest.waist, first.waist, 'waistDiff');
+                displayDiff(latest.hip, first.hip, 'hipDiff');
+            } else {
+                document.getElementById('neckDiff').textContent = '';
+                document.getElementById('waistDiff').textContent = '';
+                document.getElementById('hipDiff').textContent = '';
+            }
             
             // Calculate or recalculate body fat if possible
             let bodyFat = latest.bodyFat;
