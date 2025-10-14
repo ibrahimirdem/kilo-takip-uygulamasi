@@ -55,9 +55,6 @@
                     <button id="userSettingsBtn" class="bg-white/20 hover:bg-white/30 px-3 py-1 rounded-full transition-all">
                         <i class="fas fa-cog"></i>
                     </button>
-                    <button id="menuToggle" class="md:hidden text-white">
-                        <i class="fas fa-bars text-xl"></i>
-                    </button>
                 </div>
             </div>
         </div>
@@ -76,7 +73,7 @@
     </div>
 
     <!-- Mobile Navigation -->
-    <div id="mobileNav" class="md:hidden bg-white rounded-xl shadow-soft mx-4 mt-4 p-2 hidden">
+    <div id="mobileNav" class="md:hidden bg-white rounded-xl shadow-soft mx-4 mt-4 p-2">
         <div class="grid grid-cols-4 gap-1">
             <button onclick="openTab(event, 'weightTab')" class="tab-btn mobile-tab-btn flex flex-col items-center justify-center p-3 rounded-lg text-gray-500 hover:text-primary hover:bg-primary/5 transition-all">
                 <i class="fas fa-plus-circle text-xl mb-1"></i>
@@ -431,7 +428,7 @@
         </div>
 
         <!-- Mobile Navigation for Measurements -->
-        <div id="mobileMeasurementNav" class="md:hidden bg-white rounded-xl shadow-soft p-2 mb-6">
+        <div id="mobileMeasurementNav" class="md:hidden bg-white rounded-xl shadow-soft p-2 mb-6 hidden">
             <div class="grid grid-cols-3 gap-1">
                 <button onclick="openMeasurementTab(event, 'measurementEntryTab')" class="measurement-tab-btn mobile-measurement-tab-btn flex flex-col items-center justify-center p-3 rounded-lg text-gray-500 hover:text-primary hover:bg-primary/5 transition-all">
                     <i class="fas fa-plus-circle text-xl mb-1"></i>
@@ -663,11 +660,6 @@
             document.getElementById('importFile').addEventListener('change', importData);
             document.getElementById('clearAllData').addEventListener('click', clearAllData);
             
-            // Mobile menu toggle
-            document.getElementById('menuToggle').addEventListener('click', () => {
-                const mobileNav = document.getElementById('mobileNav');
-                mobileNav.classList.toggle('hidden');
-            });
             
             // User settings modal
             document.getElementById('userSettingsBtn').addEventListener('click', () => {
@@ -1320,12 +1312,14 @@
             const weightSection = document.getElementById('weightSection');
             const measurementsSection = document.getElementById('measurementsSection');
             const mobileNav = document.getElementById('mobileNav');
+            const mobileMeasurementNav = document.getElementById('mobileMeasurementNav');
             
             // Update section visibility
             if (section === 'weight') {
                 weightSection.classList.remove('hidden');
                 measurementsSection.classList.add('hidden');
-                mobileNav.classList.add('hidden');
+                mobileNav.classList.remove('hidden');
+                mobileMeasurementNav.classList.add('hidden');
                 
                 // Update desktop buttons
                 document.getElementById('weightSectionBtn')?.classList.add('bg-white/20');
@@ -1340,6 +1334,7 @@
                 weightSection.classList.add('hidden');
                 measurementsSection.classList.remove('hidden');
                 mobileNav.classList.add('hidden');
+                mobileMeasurementNav.classList.remove('hidden');
                 
                 // Update desktop buttons
                 document.getElementById('weightSectionBtn')?.classList.remove('bg-white/20');
