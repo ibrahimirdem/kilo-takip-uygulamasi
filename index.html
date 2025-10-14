@@ -43,6 +43,14 @@
                     </div>
                     <h1 class="text-xl md:text-2xl font-bold">Kilo Takip</h1>
                 </div>
+                <nav class="hidden md:flex items-center space-x-2">
+                    <button id="weightSectionBtn" class="section-nav-btn bg-white/20 hover:bg-white/30 px-4 py-2 rounded-lg transition-all text-sm font-medium">
+                        <i class="fas fa-weight mr-2"></i>Kilo
+                    </button>
+                    <button id="measurementsSectionBtn" class="section-nav-btn hover:bg-white/20 px-4 py-2 rounded-lg transition-all text-sm font-medium">
+                        <i class="fas fa-ruler mr-2"></i>Ölçüler
+                    </button>
+                </nav>
                 <div class="flex items-center space-x-2">
                     <button id="userSettingsBtn" class="bg-white/20 hover:bg-white/30 px-3 py-1 rounded-full transition-all">
                         <i class="fas fa-cog"></i>
@@ -54,6 +62,18 @@
             </div>
         </div>
     </header>
+
+    <!-- Mobile Section Navigation -->
+    <div id="mobileSectionNav" class="md:hidden bg-white rounded-xl shadow-soft mx-4 mt-4 p-2">
+        <div class="grid grid-cols-2 gap-2">
+            <button id="mobileWeightSectionBtn" class="mobile-section-nav-btn bg-primary/10 text-primary flex items-center justify-center p-3 rounded-lg font-medium transition-all">
+                <i class="fas fa-weight mr-2"></i>Kilo Takibi
+            </button>
+            <button id="mobileMeasurementsSectionBtn" class="mobile-section-nav-btn text-gray-500 hover:text-primary hover:bg-primary/5 flex items-center justify-center p-3 rounded-lg font-medium transition-all">
+                <i class="fas fa-ruler mr-2"></i>Vücut Ölçüleri
+            </button>
+        </div>
+    </div>
 
     <!-- Mobile Navigation -->
     <div id="mobileNav" class="md:hidden bg-white rounded-xl shadow-soft mx-4 mt-4 p-2 hidden">
@@ -119,6 +139,8 @@
 
     <!-- Main Content -->
     <main class="container mx-auto px-4 py-6">
+        <!-- Weight Tracking Section -->
+        <div id="weightSection" class="section-content">
         <!-- Stats Cards -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
             <div class="bg-white rounded-xl shadow-soft p-6 transition-all hover:shadow-medium">
@@ -317,6 +339,190 @@
                 </div>
             </div>
         </div>
+        </div>
+        <!-- End Weight Tracking Section -->
+
+        <!-- Body Measurements Section -->
+        <div id="measurementsSection" class="section-content hidden">
+        <!-- Measurements Stats Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+            <div class="bg-white rounded-xl shadow-soft p-6 transition-all hover:shadow-medium">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm font-medium">Son Boyun Ölçüsü</p>
+                        <p id="currentNeck" class="text-3xl font-bold text-dark mt-1">--</p>
+                    </div>
+                    <div class="bg-primary/10 p-3 rounded-full">
+                        <i class="fas fa-ruler text-primary text-xl"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-xl shadow-soft p-6 transition-all hover:shadow-medium">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm font-medium">Son Bel Ölçüsü</p>
+                        <p id="currentWaist" class="text-3xl font-bold text-dark mt-1">--</p>
+                    </div>
+                    <div class="bg-secondary/10 p-3 rounded-full">
+                        <i class="fas fa-ruler-horizontal text-secondary text-xl"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-xl shadow-soft p-6 transition-all hover:shadow-medium">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm font-medium">Son Kalça Ölçüsü</p>
+                        <p id="currentHip" class="text-3xl font-bold text-dark mt-1">--</p>
+                    </div>
+                    <div class="bg-warning/10 p-3 rounded-full">
+                        <i class="fas fa-ruler-combined text-warning text-xl"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Desktop Tabs -->
+        <div class="hidden md:flex bg-white rounded-xl shadow-soft p-1 mb-6">
+            <button onclick="openMeasurementTab(event, 'measurementEntryTab')" class="measurement-tab-btn flex-1 py-3 px-6 rounded-lg text-center font-medium text-gray-500 hover:text-primary transition-all">
+                <i class="fas fa-plus-circle mr-2"></i> Ölçü Girişi
+            </button>
+            <button onclick="openMeasurementTab(event, 'measurementHistoryTab')" class="measurement-tab-btn flex-1 py-3 px-6 rounded-lg text-center font-medium text-gray-500 hover:text-primary transition-all">
+                <i class="fas fa-history mr-2"></i> Geçmiş
+            </button>
+            <button onclick="openMeasurementTab(event, 'measurementChartTab')" class="measurement-tab-btn flex-1 py-3 px-6 rounded-lg text-center font-medium text-gray-500 hover:text-primary transition-all">
+                <i class="fas fa-chart-line mr-2"></i> Grafikler
+            </button>
+        </div>
+
+        <!-- Mobile Navigation for Measurements -->
+        <div id="mobileMeasurementNav" class="md:hidden bg-white rounded-xl shadow-soft p-2 mb-6">
+            <div class="grid grid-cols-3 gap-1">
+                <button onclick="openMeasurementTab(event, 'measurementEntryTab')" class="measurement-tab-btn mobile-measurement-tab-btn flex flex-col items-center justify-center p-3 rounded-lg text-gray-500 hover:text-primary hover:bg-primary/5 transition-all">
+                    <i class="fas fa-plus-circle text-xl mb-1"></i>
+                    <span class="text-xs">Ekle</span>
+                </button>
+                <button onclick="openMeasurementTab(event, 'measurementHistoryTab')" class="measurement-tab-btn mobile-measurement-tab-btn flex flex-col items-center justify-center p-3 rounded-lg text-gray-500 hover:text-primary hover:bg-primary/5 transition-all">
+                    <i class="fas fa-history text-xl mb-1"></i>
+                    <span class="text-xs">Geçmiş</span>
+                </button>
+                <button onclick="openMeasurementTab(event, 'measurementChartTab')" class="measurement-tab-btn mobile-measurement-tab-btn flex flex-col items-center justify-center p-3 rounded-lg text-gray-500 hover:text-primary hover:bg-primary/5 transition-all">
+                    <i class="fas fa-chart-line text-xl mb-1"></i>
+                    <span class="text-xs">Grafik</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Tab Contents -->
+        <div id="measurementEntryTab" class="measurement-tab-content">
+            <div class="bg-white rounded-xl shadow-soft p-6 mb-6">
+                <h2 class="text-xl font-bold text-dark mb-6 flex items-center">
+                    <i class="fas fa-plus-circle text-primary mr-3"></i>
+                    Yeni Vücut Ölçüsü Girişi
+                </h2>
+                <form id="measurementForm" class="space-y-5">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Tarih</label>
+                            <div class="relative">
+                                <input type="date" id="measurementDate" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" required>
+                                <i class="fas fa-calendar absolute right-3 top-3.5 text-gray-400"></i>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Saat</label>
+                            <div class="relative">
+                                <input type="time" id="measurementTime" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" required>
+                                <i class="fas fa-clock absolute right-3 top-3.5 text-gray-400"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Boyun (cm)</label>
+                            <div class="relative">
+                                <input type="number" id="neck" step="0.1" min="0" placeholder="Örn: 35.5" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" required>
+                                <i class="fas fa-ruler absolute right-3 top-3.5 text-gray-400"></i>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Bel (cm)</label>
+                            <div class="relative">
+                                <input type="number" id="waist" step="0.1" min="0" placeholder="Örn: 80.0" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" required>
+                                <i class="fas fa-ruler-horizontal absolute right-3 top-3.5 text-gray-400"></i>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Kalça (cm)</label>
+                            <div class="relative">
+                                <input type="number" id="hip" step="0.1" min="0" placeholder="Örn: 95.0" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" required>
+                                <i class="fas fa-ruler-combined absolute right-3 top-3.5 text-gray-400"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Not (İsteğe Bağlı)</label>
+                        <div class="relative">
+                            <input type="text" id="measurementNote" placeholder="Örn: Sabah ölçümü" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                            <i class="fas fa-sticky-note absolute right-3 top-3.5 text-gray-400"></i>
+                        </div>
+                    </div>
+                    <button type="submit" class="w-full bg-primary text-white py-3 px-6 rounded-lg font-medium hover:bg-secondary transition-all transform hover:scale-[1.02] active:scale-[0.98]">
+                        <i class="fas fa-save mr-2"></i> Kaydet
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <div id="measurementHistoryTab" class="measurement-tab-content hidden">
+            <div class="bg-white rounded-xl shadow-soft overflow-hidden">
+                <div class="p-6 border-b border-gray-100 flex justify-between items-center">
+                    <h2 class="text-xl font-bold text-dark flex items-center">
+                        <i class="fas fa-history text-primary mr-3"></i>
+                        Ölçü Geçmişi
+                    </h2>
+                    <button id="clearMeasurementHistory" class="text-danger hover:bg-danger/10 px-4 py-2 rounded-lg transition-all">
+                        <i class="fas fa-trash-alt mr-2"></i> Tümünü Sil
+                    </button>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Tarih</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Boyun</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Bel</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Kalça</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Not</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">İşlem</th>
+                            </tr>
+                        </thead>
+                        <tbody id="measurementHistoryTableBody" class="bg-white divide-y divide-gray-100">
+                            <!-- Veriler JavaScript ile doldurulacak -->
+                        </tbody>
+                    </table>
+                    <div id="emptyMeasurementHistory" class="text-center py-12">
+                        <i class="fas fa-ruler text-5xl text-gray-300 mb-4"></i>
+                        <p class="text-gray-500">Henüz hiç ölçü kaydı yok.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="measurementChartTab" class="measurement-tab-content hidden">
+            <div class="bg-white rounded-xl shadow-soft p-6 mb-6">
+                <h2 class="text-xl font-bold text-dark mb-6 flex items-center">
+                    <i class="fas fa-chart-line text-primary mr-3"></i>
+                    Vücut Ölçüleri Grafiği
+                </h2>
+                <div class="chart-container">
+                    <canvas id="measurementChart"></canvas>
+                </div>
+            </div>
+        </div>
+        </div>
+        <!-- End Body Measurements Section -->
     </main>
 
     <!-- Toast Notification -->
@@ -361,6 +567,16 @@
                 const userId = getUserId();
                 const key = `targets_${userId}`;
                 localStorage.setItem(key, JSON.stringify(targets));
+            },
+            getMeasurements: () => {
+                const userId = getUserId();
+                const key = `measurements_${userId}`;
+                return JSON.parse(localStorage.getItem(key)) || [];
+            },
+            saveMeasurements: (measurements) => {
+                const userId = getUserId();
+                const key = `measurements_${userId}`;
+                localStorage.setItem(key, JSON.stringify(measurements));
             }
         };
 
@@ -373,17 +589,24 @@
             const now = new Date();
             document.getElementById('date').valueAsDate = now;
             document.getElementById('time').value = now.toTimeString().substring(0, 5);
+            document.getElementById('measurementDate').valueAsDate = now;
+            document.getElementById('measurementTime').value = now.toTimeString().substring(0, 5);
             
             // Verileri yükle
             updateStats();
             renderHistory();
             renderTargets();
             initChart();
+            updateMeasurementStats();
+            renderMeasurementHistory();
+            initMeasurementChart();
             
             // Form event listeners
             document.getElementById('weightForm').addEventListener('submit', handleWeightSubmit);
             document.getElementById('targetForm').addEventListener('submit', handleTargetSubmit);
+            document.getElementById('measurementForm').addEventListener('submit', handleMeasurementSubmit);
             document.getElementById('clearHistory').addEventListener('click', clearAllHistory);
+            document.getElementById('clearMeasurementHistory').addEventListener('click', clearAllMeasurementHistory);
             document.getElementById('exportData').addEventListener('click', exportData);
             document.getElementById('importData').addEventListener('click', () => {
                 document.getElementById('importFile').click();
@@ -413,6 +636,12 @@
                 }
             });
             
+            // Section navigation
+            document.getElementById('weightSectionBtn')?.addEventListener('click', () => switchSection('weight'));
+            document.getElementById('measurementsSectionBtn')?.addEventListener('click', () => switchSection('measurements'));
+            document.getElementById('mobileWeightSectionBtn')?.addEventListener('click', () => switchSection('weight'));
+            document.getElementById('mobileMeasurementsSectionBtn')?.addEventListener('click', () => switchSection('measurements'));
+            
             // Event delegation for delete buttons
             document.addEventListener('click', function(e) {
                 if (e.target.closest('.delete-weight-btn')) {
@@ -421,11 +650,15 @@
                 } else if (e.target.closest('.delete-target-btn')) {
                     const id = parseInt(e.target.closest('.delete-target-btn').dataset.id);
                     deleteTarget(id);
+                } else if (e.target.closest('.delete-measurement-btn')) {
+                    const id = parseInt(e.target.closest('.delete-measurement-btn').dataset.id);
+                    deleteMeasurement(id);
                 }
             });
             
             // Set active tab
-            document.querySelector('.tab-btn').classList.add('bg-primary/10', 'text-primary');
+            document.querySelector('.tab-btn')?.classList.add('bg-primary/10', 'text-primary');
+            document.querySelector('.measurement-tab-btn')?.classList.add('bg-primary/10', 'text-primary');
         });
 
         // Tüm verileri sil
@@ -434,11 +667,15 @@
                 const userId = getUserId();
                 localStorage.removeItem(`weights_${userId}`);
                 localStorage.removeItem(`targets_${userId}`);
+                localStorage.removeItem(`measurements_${userId}`);
                 
                 updateStats();
                 renderHistory();
                 renderTargets();
                 updateChart();
+                updateMeasurementStats();
+                renderMeasurementHistory();
+                updateMeasurementChart();
                 
                 showToast('Tüm veriler silindi!', 'info');
                 document.getElementById('userSettingsModal').classList.add('hidden');
@@ -452,6 +689,7 @@
                 userId: userId,
                 weights: storage.getWeights(),
                 targets: storage.getTargets(),
+                measurements: storage.getMeasurements(),
                 exportDate: new Date().toISOString()
             };
             
@@ -479,19 +717,23 @@
                     const data = JSON.parse(e.target.result);
                     
                     if (data.weights && data.targets) {
-                        // Mevcut verileri yedekle
-                        const backupWeights = storage.getWeights();
-                        const backupTargets = storage.getTargets();
-                        
                         // Yeni verileri yükle
                         storage.saveWeights(data.weights);
                         storage.saveTargets(data.targets);
+                        
+                        // Measurements verisi varsa onu da yükle (geriye uyumluluk için kontrol)
+                        if (data.measurements) {
+                            storage.saveMeasurements(data.measurements);
+                        }
                         
                         // Arayüzü güncelle
                         updateStats();
                         renderHistory();
                         renderTargets();
                         updateChart();
+                        updateMeasurementStats();
+                        renderMeasurementHistory();
+                        updateMeasurementChart();
                         
                         showToast('Veriler başarıyla içe aktarıldı!', 'success');
                     } else {
@@ -946,6 +1188,298 @@
             setTimeout(() => {
                 toast.classList.add('translate-x-full');
             }, 3000);
+        }
+
+        // ============= MEASUREMENTS SECTION FUNCTIONS =============
+
+        // Switch between sections
+        function switchSection(section) {
+            const weightSection = document.getElementById('weightSection');
+            const measurementsSection = document.getElementById('measurementsSection');
+            const mobileNav = document.getElementById('mobileNav');
+            
+            // Update section visibility
+            if (section === 'weight') {
+                weightSection.classList.remove('hidden');
+                measurementsSection.classList.add('hidden');
+                mobileNav.classList.add('hidden');
+                
+                // Update desktop buttons
+                document.getElementById('weightSectionBtn')?.classList.add('bg-white/20');
+                document.getElementById('measurementsSectionBtn')?.classList.remove('bg-white/20');
+                
+                // Update mobile buttons
+                document.getElementById('mobileWeightSectionBtn')?.classList.add('bg-primary/10', 'text-primary');
+                document.getElementById('mobileWeightSectionBtn')?.classList.remove('text-gray-500');
+                document.getElementById('mobileMeasurementsSectionBtn')?.classList.remove('bg-primary/10', 'text-primary');
+                document.getElementById('mobileMeasurementsSectionBtn')?.classList.add('text-gray-500');
+            } else {
+                weightSection.classList.add('hidden');
+                measurementsSection.classList.remove('hidden');
+                mobileNav.classList.add('hidden');
+                
+                // Update desktop buttons
+                document.getElementById('weightSectionBtn')?.classList.remove('bg-white/20');
+                document.getElementById('measurementsSectionBtn')?.classList.add('bg-white/20');
+                
+                // Update mobile buttons
+                document.getElementById('mobileWeightSectionBtn')?.classList.remove('bg-primary/10', 'text-primary');
+                document.getElementById('mobileWeightSectionBtn')?.classList.add('text-gray-500');
+                document.getElementById('mobileMeasurementsSectionBtn')?.classList.add('bg-primary/10', 'text-primary');
+                document.getElementById('mobileMeasurementsSectionBtn')?.classList.remove('text-gray-500');
+                
+                // Update chart when switching to measurements
+                updateMeasurementChart();
+            }
+        }
+
+        // Ölçü sekmesi değiştirme fonksiyonu
+        function openMeasurementTab(evt, tabName) {
+            const tabContents = document.querySelectorAll('.measurement-tab-content');
+            tabContents.forEach(content => {
+                content.classList.add('hidden');
+            });
+            
+            const tabs = document.querySelectorAll('.measurement-tab-btn');
+            tabs.forEach(tab => {
+                tab.classList.remove('bg-primary/10', 'text-primary');
+                tab.classList.add('text-gray-500');
+            });
+            
+            document.getElementById(tabName).classList.remove('hidden');
+            evt.currentTarget.classList.add('bg-primary/10', 'text-primary');
+            evt.currentTarget.classList.remove('text-gray-500');
+            
+            if (tabName === 'measurementChartTab') {
+                updateMeasurementChart();
+            }
+        }
+
+        // Ölçü form gönderildiğinde
+        function handleMeasurementSubmit(e) {
+            e.preventDefault();
+            
+            const date = document.getElementById('measurementDate').value;
+            const time = document.getElementById('measurementTime').value;
+            const neck = parseFloat(document.getElementById('neck').value);
+            const waist = parseFloat(document.getElementById('waist').value);
+            const hip = parseFloat(document.getElementById('hip').value);
+            const note = document.getElementById('measurementNote').value;
+            
+            const dateTime = `${date}T${time}`;
+            
+            const newMeasurement = {
+                id: Date.now(),
+                date: date,
+                time: time,
+                dateTime: dateTime,
+                neck: neck,
+                waist: waist,
+                hip: hip,
+                note: note
+            };
+            
+            const measurements = storage.getMeasurements();
+            measurements.push(newMeasurement);
+            measurements.sort((a, b) => new Date(a.dateTime) - new Date(b.dateTime));
+            
+            storage.saveMeasurements(measurements);
+            updateMeasurementStats();
+            renderMeasurementHistory();
+            updateMeasurementChart();
+            
+            document.getElementById('measurementForm').reset();
+            const now = new Date();
+            document.getElementById('measurementDate').valueAsDate = now;
+            document.getElementById('measurementTime').value = now.toTimeString().substring(0, 5);
+            
+            showToast('Ölçü kaydı başarıyla eklendi!', 'success');
+        }
+
+        // Ölçü istatistiklerini güncelle
+        function updateMeasurementStats() {
+            const measurements = storage.getMeasurements();
+            
+            if (measurements.length === 0) {
+                document.getElementById('currentNeck').textContent = '--';
+                document.getElementById('currentWaist').textContent = '--';
+                document.getElementById('currentHip').textContent = '--';
+                return;
+            }
+            
+            const latest = measurements[measurements.length - 1];
+            document.getElementById('currentNeck').textContent = `${latest.neck} cm`;
+            document.getElementById('currentWaist').textContent = `${latest.waist} cm`;
+            document.getElementById('currentHip').textContent = `${latest.hip} cm`;
+        }
+
+        // Ölçü geçmişini render et
+        function renderMeasurementHistory() {
+            const measurements = storage.getMeasurements();
+            const tableBody = document.getElementById('measurementHistoryTableBody');
+            const emptyState = document.getElementById('emptyMeasurementHistory');
+            
+            tableBody.innerHTML = '';
+            
+            if (measurements.length === 0) {
+                emptyState.style.display = 'block';
+                return;
+            }
+            
+            emptyState.style.display = 'none';
+            
+            [...measurements].reverse().forEach((measurement) => {
+                const row = document.createElement('tr');
+                row.className = 'hover:bg-gray-50';
+                
+                row.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm font-medium">${formatDate(measurement.date)}</div>
+                        <div class="text-sm text-gray-500">${measurement.time}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm font-medium">${measurement.neck} cm</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm font-medium">${measurement.waist} cm</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm font-medium">${measurement.hip} cm</div>
+                    </td>
+                    <td class="px-6 py-4">
+                        <div class="text-sm">${measurement.note || '--'}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm">
+                        <button class="delete-measurement-btn text-danger hover:bg-danger/10 px-3 py-1 rounded-lg transition-all" data-id="${measurement.id}">
+                            <i class="fas fa-trash-alt"></i> Sil
+                        </button>
+                    </td>
+                `;
+                
+                tableBody.appendChild(row);
+            });
+        }
+
+        // Ölçü kaydını sil
+        function deleteMeasurement(id) {
+            if (confirm('Bu ölçü kaydını silmek istediğinizden emin misiniz?')) {
+                let measurements = storage.getMeasurements();
+                measurements = measurements.filter(m => m.id !== id);
+                storage.saveMeasurements(measurements);
+                
+                updateMeasurementStats();
+                renderMeasurementHistory();
+                updateMeasurementChart();
+                
+                showToast('Ölçü kaydı silindi!', 'info');
+            }
+        }
+
+        // Tüm ölçü geçmişini sil
+        function clearAllMeasurementHistory() {
+            if (confirm('Tüm ölçü geçmişini silmek istediğinizden emin misiniz? Bu işlem geri alınamaz!')) {
+                storage.saveMeasurements([]);
+                updateMeasurementStats();
+                renderMeasurementHistory();
+                updateMeasurementChart();
+                
+                showToast('Tüm ölçü geçmişi silindi!', 'info');
+            }
+        }
+
+        // Ölçü grafiğini başlat
+        let measurementChart;
+        function initMeasurementChart() {
+            const ctx = document.getElementById('measurementChart').getContext('2d');
+            measurementChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [
+                        {
+                            label: 'Boyun (cm)',
+                            data: [],
+                            borderColor: '#4f46e5',
+                            backgroundColor: 'rgba(79, 70, 229, 0.1)',
+                            borderWidth: 3,
+                            pointBackgroundColor: '#4f46e5',
+                            pointRadius: 5,
+                            tension: 0.3,
+                            fill: false
+                        },
+                        {
+                            label: 'Bel (cm)',
+                            data: [],
+                            borderColor: '#6366f1',
+                            backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                            borderWidth: 3,
+                            pointBackgroundColor: '#6366f1',
+                            pointRadius: 5,
+                            tension: 0.3,
+                            fill: false
+                        },
+                        {
+                            label: 'Kalça (cm)',
+                            data: [],
+                            borderColor: '#f59e0b',
+                            backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                            borderWidth: 3,
+                            pointBackgroundColor: '#f59e0b',
+                            pointRadius: 5,
+                            tension: 0.3,
+                            fill: false
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            grid: { color: 'rgba(0, 0, 0, 0.05)' }
+                        },
+                        x: {
+                            grid: { display: false }
+                        }
+                    },
+                    plugins: {
+                        legend: { 
+                            display: true,
+                            position: 'top'
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                            titleColor: '#1e293b',
+                            bodyColor: '#475569',
+                            borderColor: '#e2e8f0',
+                            borderWidth: 1,
+                            padding: 12,
+                            cornerRadius: 8
+                        }
+                    }
+                }
+            });
+            
+            updateMeasurementChart();
+        }
+
+        // Ölçü grafiğini güncelle
+        function updateMeasurementChart() {
+            if (!measurementChart) return;
+            
+            const measurements = storage.getMeasurements();
+            
+            const labels = measurements.map(m => formatDate(m.date));
+            const neckData = measurements.map(m => m.neck);
+            const waistData = measurements.map(m => m.waist);
+            const hipData = measurements.map(m => m.hip);
+            
+            measurementChart.data.labels = labels;
+            measurementChart.data.datasets[0].data = neckData;
+            measurementChart.data.datasets[1].data = waistData;
+            measurementChart.data.datasets[2].data = hipData;
+            measurementChart.update();
         }
     </script>
 </body>
