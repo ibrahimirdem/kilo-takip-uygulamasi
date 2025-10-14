@@ -30,6 +30,42 @@
         * { font-family: 'Inter', sans-serif; }
         .gradient-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
         .chart-container { position: relative; height: 300px; }
+        .measurement-tooltip {
+            position: absolute;
+            background: #1e293b;
+            color: white;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            line-height: 1.5;
+            max-width: 300px;
+            z-index: 1000;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            display: none;
+            pointer-events: none;
+        }
+        .measurement-tooltip.active {
+            display: block;
+        }
+        .measurement-tooltip::before {
+            content: '';
+            position: absolute;
+            top: -8px;
+            left: 20px;
+            width: 0;
+            height: 0;
+            border-left: 8px solid transparent;
+            border-right: 8px solid transparent;
+            border-bottom: 8px solid #1e293b;
+        }
+        .info-icon {
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .info-icon:hover {
+            transform: scale(1.1);
+            color: #4f46e5;
+        }
     </style>
 </head>
 <body class="bg-gray-50 min-h-screen">
@@ -471,21 +507,45 @@
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Boyun (cm)</label>
+                            <div class="relative">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    Boyun (cm)
+                                    <i class="fas fa-info-circle info-icon text-gray-400 ml-1" data-tooltip="neck-tooltip"></i>
+                                </label>
+                                <div class="measurement-tooltip" id="neck-tooltip">
+                                    Karşıdaki bir noktaya bakar pozisyonunda boynunuzu dik tutun. Gırtlak çıkıntısının (adem elması) alt sınırındaki noktadan mezuranız ile boyun çevresini ölçebilirsiniz.
+                                </div>
+                            </div>
                             <div class="relative">
                                 <input type="number" id="neck" step="0.1" min="0" placeholder="Örn: 35.5" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" required>
                                 <i class="fas fa-ruler absolute right-3 top-3.5 text-gray-400"></i>
                             </div>
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Bel (cm)</label>
+                            <div class="relative">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    Bel (cm)
+                                    <i class="fas fa-info-circle info-icon text-gray-400 ml-1" data-tooltip="waist-tooltip"></i>
+                                </label>
+                                <div class="measurement-tooltip" id="waist-tooltip">
+                                    Ayakta dik pozisyonda, kollarınız yanınızda gevşek şekilde dururken göbeğinizin en geniş yerinden (genellikle göbek hizasından) mezuranızı gevşek tutarak bel çevrenizi ölçün. Mezura yere paralel olmalıdır.
+                                </div>
+                            </div>
                             <div class="relative">
                                 <input type="number" id="waist" step="0.1" min="0" placeholder="Örn: 80.0" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" required>
                                 <i class="fas fa-ruler-horizontal absolute right-3 top-3.5 text-gray-400"></i>
                             </div>
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Kalça (cm)</label>
+                            <div class="relative">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    Kalça (cm)
+                                    <i class="fas fa-info-circle info-icon text-gray-400 ml-1" data-tooltip="hip-tooltip"></i>
+                                </label>
+                                <div class="measurement-tooltip" id="hip-tooltip">
+                                    Ayakta dik pozisyonda, ayaklarınız bitişik şekilde dururken kalçanızın en geniş noktasından (genellikle kalça kemiklerinin en çıkıntılı olduğu yerden) mezuranızı gevşek tutarak kalça çevrenizi ölçün.
+                                </div>
+                            </div>
                             <div class="relative">
                                 <input type="number" id="hip" step="0.1" min="0" placeholder="Örn: 95.0" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" required>
                                 <i class="fas fa-ruler-combined absolute right-3 top-3.5 text-gray-400"></i>
@@ -660,6 +720,43 @@
             document.getElementById('importFile').addEventListener('change', importData);
             document.getElementById('clearAllData').addEventListener('click', clearAllData);
             
+            // Measurement tooltips
+            const tooltipIcons = document.querySelectorAll('.info-icon');
+            let activeTooltip = null;
+            
+            tooltipIcons.forEach(icon => {
+                icon.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const tooltipId = icon.getAttribute('data-tooltip');
+                    const tooltip = document.getElementById(tooltipId);
+                    
+                    // Close active tooltip if different
+                    if (activeTooltip && activeTooltip !== tooltip) {
+                        activeTooltip.classList.remove('active');
+                    }
+                    
+                    // Toggle current tooltip
+                    tooltip.classList.toggle('active');
+                    
+                    if (tooltip.classList.contains('active')) {
+                        activeTooltip = tooltip;
+                        // Position tooltip
+                        const iconRect = icon.getBoundingClientRect();
+                        tooltip.style.top = (iconRect.bottom + 5) + 'px';
+                        tooltip.style.left = (iconRect.left - 10) + 'px';
+                    } else {
+                        activeTooltip = null;
+                    }
+                });
+            });
+            
+            // Close tooltips when clicking outside
+            document.addEventListener('click', (e) => {
+                if (activeTooltip && !e.target.classList.contains('info-icon')) {
+                    activeTooltip.classList.remove('active');
+                    activeTooltip = null;
+                }
+            });
             
             // User settings modal
             document.getElementById('userSettingsBtn').addEventListener('click', () => {
