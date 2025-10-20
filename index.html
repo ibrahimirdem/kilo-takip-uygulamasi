@@ -235,7 +235,7 @@
 
     <!-- Mobile Navigation for Measurements -->
     <div id="mobileMeasurementNav" class="md:hidden bg-white rounded-xl shadow-soft mx-4 mt-4 p-2 hidden">
-        <div class="grid grid-cols-3 gap-1">
+        <div class="grid grid-cols-4 gap-1">
             <button onclick="openMeasurementTab(event, 'measurementEntryTab')" class="measurement-tab-btn mobile-measurement-tab-btn flex flex-col items-center justify-center p-3 rounded-lg text-gray-500 hover:text-primary hover:bg-primary/5 transition-all">
                 <i class="fas fa-plus-circle text-xl mb-1"></i>
                 <span class="text-xs">Ekle</span>
@@ -243,6 +243,10 @@
             <button onclick="openMeasurementTab(event, 'measurementHistoryTab')" class="measurement-tab-btn mobile-measurement-tab-btn flex flex-col items-center justify-center p-3 rounded-lg text-gray-500 hover:text-primary hover:bg-primary/5 transition-all">
                 <i class="fas fa-history text-xl mb-1"></i>
                 <span class="text-xs">Geçmiş</span>
+            </button>
+            <button onclick="openMeasurementTab(event, 'measurementTargetsTab')" class="measurement-tab-btn mobile-measurement-tab-btn flex flex-col items-center justify-center p-3 rounded-lg text-gray-500 hover:text-primary hover:bg-primary/5 transition-all">
+                <i class="fas fa-bullseye text-xl mb-1"></i>
+                <span class="text-xs">Hedefler</span>
             </button>
             <button onclick="openMeasurementTab(event, 'measurementChartTab')" class="measurement-tab-btn mobile-measurement-tab-btn flex flex-col items-center justify-center p-3 rounded-lg text-gray-500 hover:text-primary hover:bg-primary/5 transition-all">
                 <i class="fas fa-chart-line text-xl mb-1"></i>
@@ -474,29 +478,6 @@
                             </div>
                         </div>
                     </div>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Hedef Boyun (cm)</label>
-                            <div class="relative">
-                                <input type="number" id="targetNeck" step="0.1" min="0" placeholder="Örn: 35.0" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
-                                <i class="fas fa-ruler absolute right-3 top-3.5 text-gray-400"></i>
-                            </div>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Hedef Bel (cm)</label>
-                            <div class="relative">
-                                <input type="number" id="targetWaist" step="0.1" min="0" placeholder="Örn: 80.0" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
-                                <i class="fas fa-ruler-horizontal absolute right-3 top-3.5 text-gray-400"></i>
-                            </div>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Hedef Kalça (cm)</label>
-                            <div class="relative">
-                                <input type="number" id="targetHip" step="0.1" min="0" placeholder="Örn: 95.0" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
-                                <i class="fas fa-ruler-combined absolute right-3 top-3.5 text-gray-400"></i>
-                            </div>
-                        </div>
-                    </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Açıklama</label>
                         <div class="relative">
@@ -610,6 +591,9 @@
             </button>
             <button onclick="openMeasurementTab(event, 'measurementHistoryTab')" class="measurement-tab-btn flex-1 py-3 px-6 rounded-lg text-center font-medium text-gray-500 hover:text-primary transition-all">
                 <i class="fas fa-history mr-2"></i> Geçmiş
+            </button>
+            <button onclick="openMeasurementTab(event, 'measurementTargetsTab')" class="measurement-tab-btn flex-1 py-3 px-6 rounded-lg text-center font-medium text-gray-500 hover:text-primary transition-all">
+                <i class="fas fa-bullseye mr-2"></i> Hedefler
             </button>
             <button onclick="openMeasurementTab(event, 'measurementChartTab')" class="measurement-tab-btn flex-1 py-3 px-6 rounded-lg text-center font-medium text-gray-500 hover:text-primary transition-all">
                 <i class="fas fa-chart-line mr-2"></i> Grafikler
@@ -732,6 +716,75 @@
                     <div id="emptyMeasurementHistory" class="text-center py-12">
                         <i class="fas fa-ruler text-5xl text-gray-300 mb-4"></i>
                         <p class="text-gray-500">Henüz hiç ölçü kaydı yok.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="measurementTargetsTab" class="measurement-tab-content hidden">
+            <div class="bg-white rounded-xl shadow-soft p-6 mb-6">
+                <h2 class="text-xl font-bold text-dark mb-6 flex items-center">
+                    <i class="fas fa-bullseye text-primary mr-3"></i>
+                    Yeni Ölçü Hedefi Belirle
+                </h2>
+                <form id="measurementTargetForm" class="space-y-5">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Hedef Tarihi</label>
+                            <div class="relative">
+                                <input type="date" id="measurementTargetDate" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" required>
+                                <i class="fas fa-calendar absolute right-3 top-3.5 text-gray-400"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Hedef Boyun (cm)</label>
+                            <div class="relative">
+                                <input type="number" id="measurementTargetNeck" step="0.1" min="0" placeholder="Örn: 35.0" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                                <i class="fas fa-ruler absolute right-3 top-3.5 text-gray-400"></i>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Hedef Bel (cm)</label>
+                            <div class="relative">
+                                <input type="number" id="measurementTargetWaist" step="0.1" min="0" placeholder="Örn: 80.0" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                                <i class="fas fa-ruler-horizontal absolute right-3 top-3.5 text-gray-400"></i>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Hedef Kalça (cm)</label>
+                            <div class="relative">
+                                <input type="number" id="measurementTargetHip" step="0.1" min="0" placeholder="Örn: 95.0" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                                <i class="fas fa-ruler-combined absolute right-3 top-3.5 text-gray-400"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Açıklama</label>
+                        <div class="relative">
+                            <input type="text" id="measurementTargetDescription" placeholder="Örn: Yaz tatiline kadar" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                            <i class="fas fa-sticky-note absolute right-3 top-3.5 text-gray-400"></i>
+                        </div>
+                    </div>
+                    <button type="submit" class="w-full bg-primary text-white py-3 px-6 rounded-lg font-medium hover:bg-secondary transition-all transform hover:scale-[1.02] active:scale-[0.98]">
+                        <i class="fas fa-plus mr-2"></i> Ölçü Hedefi Ekle
+                    </button>
+                </form>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-soft overflow-hidden">
+                <div class="p-6 border-b border-gray-100">
+                    <h2 class="text-xl font-bold text-dark flex items-center">
+                        <i class="fas fa-bullseye text-primary mr-3"></i>
+                        Ölçü Hedeflerim
+                    </h2>
+                </div>
+                <div id="measurementTargetsList" class="divide-y divide-gray-100">
+                    <!-- Hedefler JavaScript ile doldurulacak -->
+                    <div id="emptyMeasurementTargets" class="text-center py-12">
+                        <i class="fas fa-bullseye text-5xl text-gray-300 mb-4"></i>
+                        <p class="text-gray-500">Henüz hiç ölçü hedefi belirlemediniz.</p>
                     </div>
                 </div>
             </div>
@@ -1087,12 +1140,14 @@
             initChart();
             updateMeasurementStats();
             renderMeasurementHistory();
+            renderMeasurementTargets();
             initMeasurementChart();
             
             // Form event listeners
             document.getElementById('weightForm').addEventListener('submit', handleWeightSubmit);
             document.getElementById('targetForm').addEventListener('submit', handleTargetSubmit);
             document.getElementById('measurementForm').addEventListener('submit', handleMeasurementSubmit);
+            document.getElementById('measurementTargetForm').addEventListener('submit', handleMeasurementTargetSubmit);
             document.getElementById('profileForm').addEventListener('submit', handleProfileSubmit);
             document.getElementById('clearHistory').addEventListener('click', clearAllHistory);
             document.getElementById('clearMeasurementHistory').addEventListener('click', clearAllMeasurementHistory);
@@ -1199,6 +1254,7 @@
                 updateChart();
                 updateMeasurementStats();
                 renderMeasurementHistory();
+                renderMeasurementTargets();
                 updateMeasurementChart();
                 loadProfileForm();
                 
@@ -1215,6 +1271,7 @@
                 weights: storage.getWeights(),
                 targets: storage.getTargets(),
                 measurements: storage.getMeasurements(),
+                measurementTargets: storage.getMeasurementTargets(),
                 profile: storage.getProfile(),
                 exportDate: new Date().toISOString()
             };
@@ -1252,6 +1309,11 @@
                             storage.saveMeasurements(data.measurements);
                         }
                         
+                        // Measurement targets verisi varsa onu da yükle
+                        if (data.measurementTargets) {
+                            storage.saveMeasurementTargets(data.measurementTargets);
+                        }
+                        
                         // Profile verisi varsa onu da yükle
                         if (data.profile) {
                             storage.saveProfile(data.profile);
@@ -1264,6 +1326,7 @@
                         updateChart();
                         updateMeasurementStats();
                         renderMeasurementHistory();
+                        renderMeasurementTargets();
                         updateMeasurementChart();
                         loadProfileForm();
                         
@@ -1346,24 +1409,18 @@
             
             const targetDate = document.getElementById('targetDate').value;
             const targetWeightValue = document.getElementById('targetWeight').value;
-            const targetNeckValue = document.getElementById('targetNeck').value;
-            const targetWaistValue = document.getElementById('targetWaist').value;
-            const targetHipValue = document.getElementById('targetHip').value;
             const description = document.getElementById('targetDescription').value;
             
-            // Check if at least one target is provided
-            if (!targetWeightValue && !targetNeckValue && !targetWaistValue && !targetHipValue) {
-                showToast('Lütfen en az bir hedef değeri girin!', 'error');
+            // Check if weight target is provided
+            if (!targetWeightValue) {
+                showToast('Lütfen hedef kilo değerini girin!', 'error');
                 return;
             }
             
             const newTarget = {
                 id: Date.now(),
                 date: targetDate,
-                weight: targetWeightValue ? parseFloat(targetWeightValue) : null,
-                neck: targetNeckValue ? parseFloat(targetNeckValue) : null,
-                waist: targetWaistValue ? parseFloat(targetWaistValue) : null,
-                hip: targetHipValue ? parseFloat(targetHipValue) : null,
+                weight: parseFloat(targetWeightValue),
                 description: description,
                 completed: false
             };
@@ -1471,8 +1528,6 @@
             
             const weights = storage.getWeights();
             const currentWeight = weights.length > 0 ? weights[weights.length - 1].weight : null;
-            const measurements = storage.getMeasurements();
-            const currentMeasurement = measurements.length > 0 ? measurements[measurements.length - 1] : null;
             
             targets.forEach(target => {
                 const targetItem = document.createElement('div');
@@ -1484,12 +1539,7 @@
                 const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
                 
                 // Build target details string
-                let targetDetails = [];
-                if (target.weight) targetDetails.push(`${target.weight} kg`);
-                if (target.neck) targetDetails.push(`Boyun: ${target.neck} cm`);
-                if (target.waist) targetDetails.push(`Bel: ${target.waist} cm`);
-                if (target.hip) targetDetails.push(`Kalça: ${target.hip} cm`);
-                const targetDetailsStr = targetDetails.join(' | ');
+                const targetDetailsStr = target.weight ? `${target.weight} kg` : '';
                 
                 let progressHtml = '';
                 let statusHtml = '';
@@ -1574,48 +1624,6 @@
                     statusHtml = '<span class="text-gray-500 text-sm">Veri yok</span>';
                 }
                 
-                // Build measurement status HTML
-                let measurementStatusHtml = '';
-                if (currentMeasurement) {
-                    let measurementStatuses = [];
-                    
-                    if (target.neck) {
-                        const diff = currentMeasurement.neck - target.neck;
-                        if (Math.abs(diff) < 0.1) {
-                            measurementStatuses.push(`<span class="text-xs text-success">✓ Boyun hedefe ulaştı</span>`);
-                        } else {
-                            const remaining = Math.abs(diff);
-                            const status = diff > 0 ? `${remaining.toFixed(1)} cm fazla` : `${remaining.toFixed(1)} cm kaldı`;
-                            measurementStatuses.push(`<span class="text-xs text-gray-600">Boyun: ${status}</span>`);
-                        }
-                    }
-                    
-                    if (target.waist) {
-                        const diff = currentMeasurement.waist - target.waist;
-                        if (Math.abs(diff) < 0.1) {
-                            measurementStatuses.push(`<span class="text-xs text-success">✓ Bel hedefe ulaştı</span>`);
-                        } else {
-                            const remaining = Math.abs(diff);
-                            const status = diff > 0 ? `${remaining.toFixed(1)} cm fazla` : `${remaining.toFixed(1)} cm kaldı`;
-                            measurementStatuses.push(`<span class="text-xs text-gray-600">Bel: ${status}</span>`);
-                        }
-                    }
-                    
-                    if (target.hip) {
-                        const diff = currentMeasurement.hip - target.hip;
-                        if (Math.abs(diff) < 0.1) {
-                            measurementStatuses.push(`<span class="text-xs text-success">✓ Kalça hedefe ulaştı</span>`);
-                        } else {
-                            const remaining = Math.abs(diff);
-                            const status = diff > 0 ? `${remaining.toFixed(1)} cm fazla` : `${remaining.toFixed(1)} cm kaldı`;
-                            measurementStatuses.push(`<span class="text-xs text-gray-600">Kalça: ${status}</span>`);
-                        }
-                    }
-                    
-                    if (measurementStatuses.length > 0) {
-                        measurementStatusHtml = `<div class="mt-2 space-y-1">${measurementStatuses.join('<br>')}</div>`;
-                    }
-                }
                 
                 targetItem.innerHTML = `
                     <div class="flex flex-col md:flex-row md:items-start md:justify-between">
@@ -1631,7 +1639,6 @@
                                 </div>
                             </div>
                             ${progressHtml}
-                            ${measurementStatusHtml}
                         </div>
                         <div class="flex flex-col items-end">
                             <div class="mb-2">${statusHtml}</div>
@@ -1788,6 +1795,182 @@
             }
         }
 
+        // Ölçü hedefi form gönderildiğinde
+        function handleMeasurementTargetSubmit(e) {
+            e.preventDefault();
+            
+            const targetDate = document.getElementById('measurementTargetDate').value;
+            const targetNeckValue = document.getElementById('measurementTargetNeck').value;
+            const targetWaistValue = document.getElementById('measurementTargetWaist').value;
+            const targetHipValue = document.getElementById('measurementTargetHip').value;
+            const description = document.getElementById('measurementTargetDescription').value;
+            
+            // Check if at least one target is provided
+            if (!targetNeckValue && !targetWaistValue && !targetHipValue) {
+                showToast('Lütfen en az bir hedef değeri girin!', 'error');
+                return;
+            }
+            
+            const newTarget = {
+                id: Date.now(),
+                date: targetDate,
+                neck: targetNeckValue ? parseFloat(targetNeckValue) : null,
+                waist: targetWaistValue ? parseFloat(targetWaistValue) : null,
+                hip: targetHipValue ? parseFloat(targetHipValue) : null,
+                description: description,
+                completed: false
+            };
+            
+            const targets = storage.getMeasurementTargets();
+            targets.push(newTarget);
+            targets.sort((a, b) => new Date(a.date) - new Date(b.date));
+            
+            storage.saveMeasurementTargets(targets);
+            renderMeasurementTargets();
+            
+            document.getElementById('measurementTargetForm').reset();
+            
+            showToast('Ölçü hedefi başarıyla eklendi!', 'success');
+        }
+
+        // Ölçü hedeflerini render et
+        function renderMeasurementTargets() {
+            const targets = storage.getMeasurementTargets();
+            const targetsList = document.getElementById('measurementTargetsList');
+            const emptyState = document.getElementById('emptyMeasurementTargets');
+            
+            if (targets.length === 0) {
+                emptyState.style.display = 'block';
+                targetsList.innerHTML = '';
+                targetsList.appendChild(emptyState);
+                return;
+            }
+            
+            emptyState.style.display = 'none';
+            targetsList.innerHTML = '';
+            
+            targets.forEach(target => {
+                const today = new Date();
+                const targetDate = new Date(target.date);
+                const diffTime = targetDate - today;
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                
+                // Build target details string
+                let targetDetails = [];
+                if (target.neck) targetDetails.push(`Boyun: ${target.neck} cm`);
+                if (target.waist) targetDetails.push(`Bel: ${target.waist} cm`);
+                if (target.hip) targetDetails.push(`Kalça: ${target.hip} cm`);
+                const targetDetailsStr = targetDetails.join(' | ');
+                
+                let progressHtml = '';
+                let statusHtml = '';
+                
+                // Get current measurements
+                const measurements = storage.getMeasurements();
+                if (measurements.length > 0) {
+                    const currentMeasurement = measurements[measurements.length - 1];
+                    let allGoalsReached = true;
+                    let measurementStatuses = [];
+                    
+                    if (target.neck) {
+                        const diff = currentMeasurement.neck - target.neck;
+                        if (Math.abs(diff) < 0.1) {
+                            measurementStatuses.push(`<span class="text-success"><i class="fas fa-check-circle"></i> Boyun hedefine ulaşıldı!</span>`);
+                        } else if (diff > 0) {
+                            measurementStatuses.push(`<span class="text-warning">Boyun: ${diff.toFixed(1)} cm daha fazla</span>`);
+                            allGoalsReached = false;
+                        } else {
+                            measurementStatuses.push(`<span class="text-info">Boyun: Hedeften ${Math.abs(diff).toFixed(1)} cm az</span>`);
+                            allGoalsReached = false;
+                        }
+                    }
+                    
+                    if (target.waist) {
+                        const diff = currentMeasurement.waist - target.waist;
+                        if (Math.abs(diff) < 0.1) {
+                            measurementStatuses.push(`<span class="text-success"><i class="fas fa-check-circle"></i> Bel hedefine ulaşıldı!</span>`);
+                        } else if (diff > 0) {
+                            measurementStatuses.push(`<span class="text-warning">Bel: ${diff.toFixed(1)} cm daha fazla</span>`);
+                            allGoalsReached = false;
+                        } else {
+                            measurementStatuses.push(`<span class="text-info">Bel: Hedeften ${Math.abs(diff).toFixed(1)} cm az</span>`);
+                            allGoalsReached = false;
+                        }
+                    }
+                    
+                    if (target.hip) {
+                        const diff = currentMeasurement.hip - target.hip;
+                        if (Math.abs(diff) < 0.1) {
+                            measurementStatuses.push(`<span class="text-success"><i class="fas fa-check-circle"></i> Kalça hedefine ulaşıldı!</span>`);
+                        } else if (diff > 0) {
+                            measurementStatuses.push(`<span class="text-warning">Kalça: ${diff.toFixed(1)} cm daha fazla</span>`);
+                            allGoalsReached = false;
+                        } else {
+                            measurementStatuses.push(`<span class="text-info">Kalça: Hedeften ${Math.abs(diff).toFixed(1)} cm az</span>`);
+                            allGoalsReached = false;
+                        }
+                    }
+                    
+                    if (allGoalsReached && (target.neck || target.waist || target.hip)) {
+                        statusHtml = `<div class="bg-success/10 border border-success rounded-lg p-3 mt-3">
+                            <p class="text-success font-medium"><i class="fas fa-trophy mr-2"></i>Tebrikler! Tüm hedeflerinize ulaştınız!</p>
+                        </div>`;
+                        target.completed = true;
+                    } else {
+                        progressHtml = `<div class="mt-3 space-y-1 text-sm">
+                            ${measurementStatuses.join('<br>')}
+                        </div>`;
+                    }
+                }
+                
+                const daysHtml = diffDays > 0 
+                    ? `<span class="text-gray-500"><i class="fas fa-clock mr-1"></i>${diffDays} gün kaldı</span>`
+                    : diffDays === 0 
+                    ? `<span class="text-warning"><i class="fas fa-exclamation-circle mr-1"></i>Bugün</span>`
+                    : `<span class="text-danger"><i class="fas fa-exclamation-triangle mr-1"></i>${Math.abs(diffDays)} gün geçti</span>`;
+                
+                const div = document.createElement('div');
+                div.className = 'p-6 hover:bg-gray-50 transition-colors';
+                div.innerHTML = `
+                    <div class="flex justify-between items-start mb-3">
+                        <div class="flex-1">
+                            <div class="flex items-center gap-3 mb-2">
+                                <h3 class="text-lg font-semibold text-dark">${target.description || 'Ölçü Hedefi'}</h3>
+                                ${target.completed ? '<span class="bg-success/20 text-success px-3 py-1 rounded-full text-xs font-medium"><i class="fas fa-check mr-1"></i>Tamamlandı</span>' : ''}
+                            </div>
+                            <p class="text-sm text-gray-600 mb-2">
+                                <i class="fas fa-calendar mr-2"></i>${formatDate(target.date)} • ${daysHtml}
+                            </p>
+                            <p class="text-primary font-medium">${targetDetailsStr}</p>
+                            ${progressHtml}
+                            ${statusHtml}
+                        </div>
+                        <button onclick="deleteMeasurementTarget(${target.id})" class="text-danger hover:bg-danger/10 p-2 rounded-lg transition-all ml-4">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    </div>
+                `;
+                
+                targetsList.appendChild(div);
+            });
+            
+            // Update storage if any targets were marked as completed
+            storage.saveMeasurementTargets(targets);
+        }
+
+        // Ölçü hedefini sil
+        function deleteMeasurementTarget(id) {
+            if (confirm('Bu ölçü hedefini silmek istediğinizden emin misiniz?')) {
+                let targets = storage.getMeasurementTargets();
+                targets = targets.filter(t => t.id !== id);
+                storage.saveMeasurementTargets(targets);
+                
+                renderMeasurementTargets();
+                
+                showToast('Ölçü hedefi silindi!', 'info');
+            }
+        }
+
         // Tüm geçmişi sil
         function clearAllHistory() {
             if (confirm('Tüm kilo geçmişini silmek istediğinizden emin misiniz? Bu işlem geri alınamaz!')) {
@@ -1868,6 +2051,7 @@
             storage.saveProfile(profile);
             updateMeasurementStats();
             renderMeasurementHistory();
+            renderMeasurementTargets();
             
             showToast('Profil bilgileri kaydedildi!', 'success');
         }
@@ -2025,6 +2209,7 @@
             storage.saveMeasurements(measurements);
             updateMeasurementStats();
             renderMeasurementHistory();
+            renderMeasurementTargets();
             updateMeasurementChart();
             
             document.getElementById('measurementForm').reset();
@@ -2175,6 +2360,7 @@
                 
                 updateMeasurementStats();
                 renderMeasurementHistory();
+                renderMeasurementTargets();
                 updateMeasurementChart();
                 
                 showToast('Ölçü kaydı silindi!', 'info');
@@ -2187,6 +2373,7 @@
                 storage.saveMeasurements([]);
                 updateMeasurementStats();
                 renderMeasurementHistory();
+                renderMeasurementTargets();
                 updateMeasurementChart();
                 
                 showToast('Tüm ölçü geçmişi silindi!', 'info');
