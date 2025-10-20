@@ -1511,14 +1511,17 @@
                         <div class="text-xs text-gray-500 mt-1">${progressPercent.toFixed(1)}% tamamlandı</div>
                     `;
                     
-                    // Check if goal is achieved (current weight matches target)
-                    const isGoalAchieved = Math.abs(currentWeight - target.weight) < 0.1;
+                    // Check if goal is to lose or gain weight
+                    const isLosingWeight = target.weight < startingWeight;
+                    
+                    // Check if goal is achieved based on whether losing or gaining weight
+                    const isGoalAchieved = isLosingWeight 
+                        ? currentWeight <= target.weight + 0.1 
+                        : currentWeight >= target.weight - 0.1;
                     
                     // Find when the goal was achieved by checking weight history
                     let achievedDate = null;
                     if (isGoalAchieved) {
-                        // Check if goal is to lose or gain weight
-                        const isLosingWeight = target.weight < startingWeight;
                         
                         for (let i = 0; i < weights.length; i++) {
                             const weight = weights[i].weight;
