@@ -1511,16 +1511,56 @@
                         <div class="text-xs text-gray-500 mt-1">${progressPercent.toFixed(1)}% tamamlandı</div>
                     `;
                     
-                    if (diffDays < 0) {
-                        statusHtml = `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-danger/10 text-danger">Tarihi geçti</span>`;
-                    } else if (Math.abs(currentWeight - target.weight) < 0.1) {
-                        statusHtml = `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-success/10 text-success">Hedefe ulaşıldı!</span>`;
-                    } else if (currentWeight > target.weight) {
-                        const remaining = currentWeight - target.weight;
-                        statusHtml = `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-danger/10 text-danger">Hedefe ${remaining.toFixed(1)} kg kaldı</span>`;
+                    // Check if goal is achieved (current weight matches target)
+                    const isGoalAchieved = Math.abs(currentWeight - target.weight) < 0.1;
+                    
+                    // Find when the goal was achieved by checking weight history
+                    let achievedDate = null;
+                    if (isGoalAchieved) {
+                        // Check if goal is to lose or gain weight
+                        const isLosingWeight = target.weight < startingWeight;
+                        
+                        for (let i = 0; i < weights.length; i++) {
+                            const weight = weights[i].weight;
+                            if (isLosingWeight) {
+                                // For weight loss, find first time we reached or went below target
+                                if (weight <= target.weight + 0.1) {
+                                    achievedDate = new Date(weights[i].date);
+                                    break;
+                                }
+                            } else {
+                                // For weight gain, find first time we reached or went above target
+                                if (weight >= target.weight - 0.1) {
+                                    achievedDate = new Date(weights[i].date);
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    
+                    // Determine status based on achievement and timing
+                    if (isGoalAchieved) {
+                        if (achievedDate && achievedDate > targetDate) {
+                            // Goal achieved but late
+                            const delayTime = achievedDate - targetDate;
+                            const delayDays = Math.ceil(delayTime / (1000 * 60 * 60 * 24));
+                            statusHtml = `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-warning/10 text-warning">${delayDays} gün gecikmeli olarak başarıldı</span>`;
+                        } else {
+                            // Goal achieved on time
+                            statusHtml = `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-success/10 text-success">Hedefe başarıyla ulaşıldı!</span>`;
+                        }
+                    } else if (diffDays < 0) {
+                        // Deadline passed and goal not achieved
+                        statusHtml = `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-danger/10 text-danger">Hedefe ulaşılamadı</span>`;
                     } else {
-                        const remaining = target.weight - currentWeight;
-                        statusHtml = `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-success/10 text-success">Hedefe ${remaining.toFixed(1)} kg kaldı</span>`;
+                        // Still in progress
+                        if (currentWeight > target.weight) {
+                            const remaining = currentWeight - target.weight;
+                            statusHtml = `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary">Hedefe ${remaining.toFixed(1)} kg kaldı</span>`;
+                        } else {
+                            const remaining = target.weight - currentWeight;
+                            statusHtml = `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary">Hedefe ${remaining.toFixed(1)} kg kaldı</span>`;
+                        }
                     }
                 } else {
                     progressHtml = `
