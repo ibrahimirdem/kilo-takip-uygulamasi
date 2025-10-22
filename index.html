@@ -1566,8 +1566,8 @@
                     
                     // Check if goal is achieved based on whether losing or gaining weight
                     const isGoalAchieved = isLosingWeight 
-                        ? currentWeight <= target.weight + 0.1 
-                        : currentWeight >= target.weight - 0.1;
+                        ? currentWeight <= target.weight 
+                        : currentWeight >= target.weight;
                     
                     // Find when the goal was achieved by checking weight history
                     let achievedDate = null;
@@ -1577,13 +1577,13 @@
                             const weight = weights[i].weight;
                             if (isLosingWeight) {
                                 // For weight loss, find first time we reached or went below target
-                                if (weight <= target.weight + 0.1) {
+                                if (weight <= target.weight) {
                                     achievedDate = new Date(weights[i].date);
                                     break;
                                 }
                             } else {
                                 // For weight gain, find first time we reached or went above target
-                                if (weight >= target.weight - 0.1) {
+                                if (weight >= target.weight) {
                                     achievedDate = new Date(weights[i].date);
                                     break;
                                 }
