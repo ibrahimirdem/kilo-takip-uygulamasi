@@ -1272,6 +1272,7 @@
                 targets: storage.getTargets(),
                 measurements: storage.getMeasurements(),
                 measurementTargets: storage.getMeasurementTargets(),
+                goals: storage.getGoals(),
                 profile: storage.getProfile(),
                 exportDate: new Date().toISOString()
             };
@@ -1319,6 +1320,11 @@
                             storage.saveProfile(data.profile);
                         }
                         
+                        // Goals verisi varsa onu da yükle
+                        if (data.goals) {
+                            storage.saveGoals(data.goals);
+                        }
+                        
                         // Arayüzü güncelle
                         updateStats();
                         renderHistory();
@@ -1328,6 +1334,8 @@
                         renderMeasurementHistory();
                         renderMeasurementTargets();
                         updateMeasurementChart();
+                        renderGoals();
+                        updateGoalsStats();
                         loadProfileForm();
                         
                         showToast('Veriler başarıyla içe aktarıldı!', 'success');
